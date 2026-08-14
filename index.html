@@ -146,7 +146,7 @@
   .site-header{position:sticky; top:0; z-index:40; background:rgba(251,248,243,.9); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
   .header-inner{display:flex; align-items:baseline; justify-content:space-between; gap:1rem; padding:.7rem 1.25rem; max-width:var(--wrap); margin:0 auto;}
   .brand{display:flex; align-items:center; gap:.55rem; background:none; border:0; cursor:pointer; padding:0;}
-  .brand svg{height:44px; width:auto; display:block;}
+  .brand svg{height:54px; width:auto; display:block;}
   .brand span{font-family:"Playfair Display",serif; font-weight:600; font-size:1.15rem; letter-spacing:.01em;}
   .nav{display:flex; align-items:center; gap:.35rem;}
   .nav button{background:none; border:0; font-family:inherit; font-size:.63rem; text-transform:uppercase; letter-spacing:.15em; font-weight:500; color:var(--ink); cursor:pointer; padding:.5rem .55rem; border-radius:6px;}
@@ -278,9 +278,11 @@
   .line-item .li-visual{width:74px; height:74px; border-radius:10px; background:linear-gradient(160deg,#efe6d5,#e7dcc6); display:grid; place-items:center; flex:none;}
   .line-item .li-visual svg{width:80%;}
   .li-main{flex:1;}
-  .li-actions{display:flex; gap:1rem; margin-top:.6rem; font-size:.82rem;}
-  .li-actions button{background:none; border:0; color:var(--muted); cursor:pointer; text-decoration:underline; font-family:inherit; padding:0;}
-  .li-actions button:hover{color:var(--red);}
+  .li-actions{display:flex; gap:.6rem; margin-top:.8rem; font-size:.82rem; flex-wrap:wrap;}
+  .li-actions button{background:none; border:1.5px solid var(--line); color:var(--brown); cursor:pointer; text-decoration:none; font-family:inherit; font-weight:500; padding:.42rem .9rem; border-radius:999px; transition:border-color .2s var(--ease), color .2s var(--ease), background .2s var(--ease);}
+  .li-actions button:hover{border-color:var(--terra); color:var(--terra);}
+  .li-actions .li-edit{border-color:var(--terra); color:var(--terra);}
+  .li-actions .li-edit:hover{background:var(--terra); color:#fff;}
   .cross-sell{display:flex; gap:1rem; align-items:center; justify-content:space-between; background:#fbf3ec; border:1px dashed var(--terra); border-radius:12px; padding:1rem 1.2rem; margin:1rem 0;}
   .empty{text-align:center; padding:4rem 1rem;}
 
@@ -423,7 +425,7 @@
   /* navegacao compacta em telemovel (sem transbordo) */
   @media(max-width:560px){
     .header-inner{padding:.75rem 1rem; gap:.4rem;}
-    .brand svg{height:36px;}
+    .brand svg{height:44px;}
     .nav{gap:0;}
     .nav button{font-size:.62rem; letter-spacing:.09em; padding:.5rem .38rem;}
     .nav button::after{left:.38rem; right:.38rem;}
@@ -536,6 +538,14 @@
   /* morada de quem recebe a oferta (modo oferta) */
   .gift-recipient{margin-top:1.6rem; padding-top:1.4rem; border-top:1px dashed var(--line);}
   .gift-recipient .recipient-title{font-size:1.05rem; margin-bottom:.2rem;}
+
+  /* Algarismos tabulares e lining em todos os elementos com Playfair Display */
+  h1, h2, h3, .brand span, .hero .price-tag, .vp .n, .pack .region, .step::before,
+  .sum-row.total, .sum-row.total span:last-child, .referral code,
+  .pack-seal .seal-title, .pack-seal .wax, .estado-badge, .conta-card h3{
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "lnum" 1;
+  }
 </style>
 </head>
 <body>
@@ -1019,7 +1029,7 @@ function renderCart(){
        '<div style="display:flex;justify-content:space-between;gap:1rem"><b>Subscrição óióWine</b><b>'+ eur(it.total) +'</b></div>'+
        '<div class="muted" style="font-size:.88rem">Plano '+ it.plano + (it.recorrente? ", renovação mensal" : "") +' &middot; pack de fevereiro</div>'+
        descLine + giftLine +
-       '<div class="li-actions"><button onclick="go(\'planos\')">Editar plano</button><button onclick="removeItem()">Remover</button></div>'+
+       '<div class="li-actions"><button class="li-edit" onclick="go(\'planos\')">Editar plano</button><button onclick="removeItem()">Remover</button></div>'+
      '</div>'+
    '</div>';
 
