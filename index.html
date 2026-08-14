@@ -546,6 +546,44 @@
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "lnum" 1;
   }
+
+  /* ===== P2 ===== */
+  /* indicador de progresso da compra */
+  .flow-steps{display:flex; gap:.4rem; list-style:none; margin:0 0 2rem; padding:0; flex-wrap:wrap;}
+  .flow-steps.flow-center{justify-content:center; margin-top:0;}
+  .flow-steps li{display:flex; align-items:center; gap:.5rem; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600;}
+  .flow-steps li .fs-num{width:1.7rem; height:1.7rem; border-radius:50%; display:grid; place-items:center; border:1.5px solid var(--line); font-size:.78rem; font-weight:600;}
+  .flow-steps li:not(:last-child)::after{content:""; width:1.4rem; height:1.5px; background:var(--line); margin-left:.1rem;}
+  .flow-steps li.current{color:var(--red);}
+  .flow-steps li.current .fs-num{border-color:var(--red); background:var(--red); color:#fff;}
+  .flow-steps li.done{color:var(--brown);}
+  .flow-steps li.done .fs-num{border-color:var(--olive); background:var(--olive); color:#fff;}
+  @media(max-width:520px){ .flow-steps li{font-size:.64rem;} .flow-steps li .fs-num{width:1.5rem;height:1.5rem;} .flow-steps li:not(:last-child)::after{width:.7rem;} }
+
+  /* segmentado de 3 opcoes (periodicidade, pagamento) */
+  .seg-wrap{display:flex; flex-wrap:wrap; gap:.25rem; background:var(--ivory); border:1px solid var(--line); border-radius:14px; padding:.25rem;}
+  .seg-wrap button{flex:1 1 auto; min-width:90px; background:none; border:0; border-radius:11px; padding:.6rem .8rem; font-family:inherit; font-size:.85rem; font-weight:500; color:var(--brown); cursor:pointer; transition:background .2s var(--ease), color .2s var(--ease);}
+  .seg-wrap button[aria-pressed="true"]{background:var(--white); color:var(--red); box-shadow:0 1px 4px rgba(44,38,32,.12);}
+  .seg-wrap button:focus-visible{outline:2px solid var(--terra); outline-offset:2px;}
+
+  /* titulos de secao no checkout */
+  .ck-title{font-size:1.05rem; margin:1.9rem 0 .9rem;}
+  .ck-title:first-child{margin-top:0;}
+  .chk-sm{font-size:.88rem; margin:.9rem 0;}
+  .consent .chk + .chk{margin-top:.9rem;}
+  .consent-legal{font-size:.82rem; color:var(--muted); margin:1rem 0 0; line-height:1.6;}
+  .lnk{background:none; border:0; padding:0; font:inherit; color:var(--terra); text-decoration:underline; cursor:pointer;}
+  .lnk:hover{color:var(--red);}
+
+  /* modal de informacao legal */
+  .legal-modal{position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center; padding:1.2rem;}
+  .legal-backdrop{position:absolute; inset:0; background:rgba(44,38,32,.5);}
+  .legal-box{position:relative; background:var(--white); border-radius:16px; max-width:560px; width:100%; max-height:82vh; overflow:auto; padding:2rem 1.8rem; box-shadow:0 24px 60px rgba(44,38,32,.3);}
+  .legal-close{position:absolute; top:.7rem; right:1rem; background:none; border:0; font-size:1.7rem; line-height:1; cursor:pointer; color:var(--muted);}
+  .legal-close:hover{color:var(--red);}
+  .legal-box h3{font-size:1.35rem; margin-bottom:1.1rem; padding-right:1.5rem;}
+  .legal-box p{font-size:.92rem; color:var(--prose);}
+  .legal-box b{color:var(--head);}
 </style>
 </head>
 <body>
@@ -662,8 +700,8 @@
           <h2>Duas regiões, uma mesa</h2>
           <p class="region">Douro &amp; Alentejo</p>
           <ul>
-            <li><span class="k">Tinto</span><span><b>Douro Reserva 2021</b>, encorpado, de fruto maduro e taninos redondos.</span></li>
-            <li><span class="k">Branco</span><span><b>Alentejo 2023</b>, fresco e aromático, ideal para começar a noite.</span></li>
+            <li><span class="k">Tinto</span><span><b>Um tinto do Douro</b>, encorpado, de fruto maduro e taninos redondos.</span></li>
+            <li><span class="k">Branco</span><span><b>Um branco do Alentejo</b>, fresco e aromático, ideal para começar a noite.</span></li>
             <li><span class="k">Aperitivo</span><span>Queijo de ovelha curado, do produtor do mês.</span></li>
             <li><span class="k">Folheto</span><span>Guia de prova com a história das duas regiões e sugestões de harmonização.</span></li>
           </ul>
@@ -704,6 +742,15 @@
             <div class="plans" id="plansList"></div>
           </div>
 
+          <div class="field">
+            <label class="legend">Periodicidade das entregas</label>
+            <div class="seg-wrap" role="group" aria-label="Periodicidade das entregas">
+              <button id="per-mensal" type="button" aria-pressed="true" onclick="setPeriod('mensal')">Mensal</button>
+              <button id="per-bimestral" type="button" aria-pressed="false" onclick="setPeriod('bimestral')">Bimestral</button>
+              <button id="per-trimestral" type="button" aria-pressed="false" onclick="setPeriod('trimestral')">Trimestral</button>
+            </div>
+          </div>
+
           <div class="field gift-msg" id="giftField">
             <label class="legend" for="giftText">Mensagem de oferta</label>
             <textarea id="giftText" rows="3" placeholder="Escreve aqui a dedicatória que vai dentro da caixa..." oninput="state.giftMsg=this.value"></textarea>
@@ -726,6 +773,11 @@
     <section class="block"><div class="wrap" style="max-width:760px">
       <p class="eyebrow">Carrinho</p>
       <h2>Confirma a tua escolha</h2>
+      <ol class="flow-steps" aria-label="Progresso da compra">
+        <li class="current" aria-current="step"><span class="fs-num">1</span>Carrinho</li>
+        <li><span class="fs-num">2</span>Pagamento</li>
+        <li><span class="fs-num">3</span>Confirmação</li>
+      </ol>
       <div id="cartBody"></div>
     </div></section>
   </section>
@@ -735,8 +787,14 @@
     <section class="block"><div class="wrap">
       <p class="eyebrow">Finalizar</p>
       <h2>Só faltam os teus dados</h2>
+      <ol class="flow-steps" aria-label="Progresso da compra">
+        <li class="done"><span class="fs-num">1</span>Carrinho</li>
+        <li class="current" aria-current="step"><span class="fs-num">2</span>Pagamento</li>
+        <li><span class="fs-num">3</span>Confirmação</li>
+      </ol>
       <div class="checkout">
         <div>
+          <h3 class="ck-title">Dados de entrega</h3>
           <div class="form-grid">
             <div><label for="f-nome">Nome</label><input class="inp" id="f-nome" type="text" placeholder="O teu nome"></div>
             <div><label for="f-email">Email</label><input class="inp" id="f-email" type="email" placeholder="para@enviar.pt"></div>
@@ -756,14 +814,24 @@
             </div>
           </div>
 
-          <div class="pay-mock">
-            <div class="sim-flag">Pagamento simulado &middot; sem cobrança real</div>
-            <div class="form-grid">
-              <div class="full"><label>Número do cartão</label><input class="inp" type="text" value="4000 0000 0000 0000" disabled></div>
-              <div><label>Validade</label><input class="inp" type="text" value="12/28" disabled></div>
-              <div><label>CVV</label><input class="inp" type="text" value="•••" disabled></div>
-            </div>
+          <h3 class="ck-title">Faturação</h3>
+          <div class="form-grid">
+            <div class="full"><label for="f-nif">NIF (opcional)</label><input class="inp" id="f-nif" type="text" placeholder="Número de contribuinte"></div>
           </div>
+          <label class="chk chk-sm"><input type="checkbox" id="f-fatIgual" checked onclick="toggleFaturacao()"> <span>A morada de faturação é a mesma da entrega</span></label>
+          <div class="form-grid" id="fatMorada" hidden>
+            <div class="full"><label for="f-fmorada">Morada de faturação</label><input class="inp" id="f-fmorada" type="text" placeholder="Rua, número, andar"></div>
+            <div><label for="f-fcp">Código postal</label><input class="inp" id="f-fcp" type="text" placeholder="0000-000"></div>
+            <div><label for="f-fcidade">Localidade</label><input class="inp" id="f-fcidade" type="text" placeholder="Cidade"></div>
+          </div>
+
+          <h3 class="ck-title">Meio de pagamento</h3>
+          <div class="seg-wrap" role="group" aria-label="Meio de pagamento">
+            <button id="pay-cartao" type="button" aria-pressed="true" onclick="setPay('cartao')">Cartão</button>
+            <button id="pay-mbway" type="button" aria-pressed="false" onclick="setPay('mbway')">MB WAY</button>
+            <button id="pay-multibanco" type="button" aria-pressed="false" onclick="setPay('multibanco')">Multibanco</button>
+          </div>
+          <div class="pay-mock" id="payMock"></div>
 
           <div class="trust">
             <span><i class="dot"></i> Ligação segura (SSL)</span>
@@ -774,6 +842,8 @@
           <div class="consent">
             <label class="chk"><input type="checkbox" id="f-idade"> <span>Confirmo que tenho <b>18 anos ou mais</b>. A venda de bebidas alcoólicas a menores é proibida por lei.</span></label>
             <p class="consent-err" id="idadeErr" role="alert" hidden>Para concluir a subscrição, confirma que tens 18 anos ou mais.</p>
+            <label class="chk"><input type="checkbox" id="f-marketing"> <span>Quero receber novidades, sugestões de harmonização e promoções da óióWine por email. <span class="muted">(opcional)</span></span></label>
+            <p class="consent-legal">Ao finalizar aceitas os <button type="button" class="lnk" onclick="openLegal('termos')">termos</button> e a <button type="button" class="lnk" onclick="openLegal('privacidade')">política de privacidade</button>. Conhece o teu <button type="button" class="lnk" onclick="openLegal('envios')">direito de livre resolução de 14 dias</button>.</p>
           </div>
         </div>
 
@@ -791,11 +861,17 @@
   <section class="view" id="view-confirmacao" tabindex="-1">
     <section class="block"><div class="wrap">
       <div class="confirm">
+        <ol class="flow-steps flow-center" aria-label="Progresso da compra">
+          <li class="done"><span class="fs-num">&#10003;</span>Carrinho</li>
+          <li class="done"><span class="fs-num">&#10003;</span>Pagamento</li>
+          <li class="current" aria-current="step"><span class="fs-num">3</span>Confirmação</li>
+        </ol>
         <div class="seal">&#10003;</div>
         <p class="eyebrow" style="color:var(--terra)">Subscrição confirmada</p>
         <h2 style="margin:1.4rem 0 1.1rem">Bem-vinda à óióWine</h2>
         <p class="muted">Recebeste um email de confirmação. O teu primeiro pack sai da nossa adega nos próximos dias.</p>
         <div class="order-card" id="orderCard"></div>
+        <div class="order-card" id="calendarCard"></div>
         <div style="text-align:left">
           <h3 style="font-size:1.15rem;margin-bottom:.6rem">Os próximos passos</h3>
           <p class="muted" style="font-size:.92rem">Vais receber o código de seguimento assim que a caixa for expedida. Podes gerir, pausar ou cancelar a subscrição a qualquer momento na tua conta.</p>
@@ -836,14 +912,23 @@
       <p style="font-size:.88rem;max-width:26ch">A tua adega curada, todos os meses.</p>
     </div>
     <div><h4>Explorar</h4><a onclick="go('funciona')" href="javascript:void(0)">Como funciona</a><a onclick="go('planos')" href="javascript:void(0)">Planos e preços</a><a onclick="go('home')" href="javascript:void(0)">O pack do mês</a></div>
-    <div><h4>Confiança</h4><a href="javascript:void(0)">Perguntas frequentes</a><a href="javascript:void(0)">Envios e devoluções</a><a href="javascript:void(0)">Consumo responsável</a></div>
-    <div><h4>Legal</h4><a href="javascript:void(0)">Termos e condições</a><a href="javascript:void(0)">Política de privacidade (RGPD)</a><a href="javascript:void(0)">Gestão de cookies</a></div>
+    <div><h4>Confiança</h4><a href="javascript:void(0)" onclick="openLegal('faq')">Perguntas frequentes</a><a href="javascript:void(0)" onclick="openLegal('envios')">Envios e devoluções</a><a href="javascript:void(0)" onclick="openLegal('consumo')">Consumo responsável</a></div>
+    <div><h4>Legal</h4><a href="javascript:void(0)" onclick="openLegal('termos')">Termos e condições</a><a href="javascript:void(0)" onclick="openLegal('privacidade')">Política de privacidade (RGPD)</a><a href="javascript:void(0)" onclick="openLegal('cookies')">Gestão de cookies</a></div>
   </div>
   <div class="legal">
     <span>&copy; 2027 óióWine. Protótipo académico, ISCAP.</span>
     <span>Beba com moderação. Venda proibida a menores de 18 anos.</span>
   </div>
 </div></footer>
+
+<div class="legal-modal" id="legalModal" hidden>
+  <div class="legal-backdrop" onclick="closeLegal()"></div>
+  <div class="legal-box" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+    <button class="legal-close" type="button" onclick="closeLegal()" aria-label="Fechar">&times;</button>
+    <h3 id="legalTitle"></h3>
+    <div id="legalBody"></div>
+  </div>
+</div>
 
 <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Aviso de cookies" hidden>
   <p class="cookie-text">Usamos cookies essenciais ao funcionamento do site. Os cookies de estatística, não essenciais, só são usados com o teu consentimento.</p>
@@ -865,14 +950,25 @@ var state = {
   crossSell: false,
   carrinho: null,
   subscricao: null,
-  cookies: null
+  cookies: null,
+  periodicidade: "mensal",
+  pagamento: "cartao",
+  marketing: false
 };
 var PLANOS = [
-  {id:"1",  label:"1 mês",     meses:1, nota:"Experimentar sem compromisso", badge:""},
-  {id:"3",  label:"3 meses",   meses:3, nota:"A dose certa para criar hábito", badge:""},
-  {id:"6",  label:"6 meses",   meses:6, nota:"A experiência completa", badge:"Mais popular"},
-  {id:"rec",label:"Recorrente",meses:0, nota:"Renova todos os meses, cancela quando quiser", badge:"1.º mês a -20%"}
+  {id:"1",  label:"1 mês",     meses:1,  nota:"Experimentar sem compromisso", badge:"", modes:["mim"]},
+  {id:"3",  label:"3 meses",   meses:3,  nota:"A dose certa para criar hábito", badge:"", modes:["mim","oferta"]},
+  {id:"6",  label:"6 meses",   meses:6,  nota:"A experiência completa", badge:"Mais popular", modes:["mim","oferta"]},
+  {id:"12", label:"12 meses",  meses:12, nota:"Um ano inteiro de descobertas", badge:"Melhor oferta", modes:["oferta"]},
+  {id:"rec",label:"Recorrente",meses:0,  nota:"Renova todos os meses, cancela quando quiser", badge:"1.º mês a -20%", modes:["mim"]}
 ];
+// periodicidade das entregas (nao altera o preco por pack; define a cadencia)
+var PERIODOS = [
+  {id:"mensal",     label:"Mensal",     meses:1},
+  {id:"bimestral",  label:"Bimestral",  meses:2},
+  {id:"trimestral", label:"Trimestral", meses:3}
+];
+function periodoById(id){ for(var i=0;i<PERIODOS.length;i++){ if(PERIODOS[i].id===id) return PERIODOS[i]; } return PERIODOS[0]; }
 // decomposicao do preco do pack mensal: 4 parcelas identificadas (soma = PRECO)
 var PARCELAS = [
   {label:"Vinhos (2 garrafas)", valor:22},
@@ -905,7 +1001,7 @@ function go(name){
   }
   if(name==="planos"){ renderPlans(); renderSummary(); }
   if(name==="carrinho"){ renderCart(); }
-  if(name==="checkout"){ renderCheckoutSummary(); }
+  if(name==="checkout"){ renderCheckoutSummary(); setPay(state.pagamento); toggleFaturacao(); }
   if(name==="conta"){ renderConta(); }
 }
 
@@ -914,8 +1010,11 @@ function setMode(m){
   state.mode = m;
   document.getElementById("mode-mim").setAttribute("aria-pressed", m==="mim");
   document.getElementById("mode-oferta").setAttribute("aria-pressed", m==="oferta");
-  // oferta nao permite recorrente
-  if(m==="oferta" && state.planoId==="rec"){ state.planoId="3"; }
+  // garantir que o plano atual e valido para o modo; senao, escolher o primeiro valido
+  var atual = planoById(state.planoId);
+  if(!atual.modes || atual.modes.indexOf(m)<0){
+    for(var i=0;i<PLANOS.length;i++){ if(PLANOS[i].modes.indexOf(m)>=0){ state.planoId=PLANOS[i].id; break; } }
+  }
   document.getElementById("giftField").classList.toggle("show", m==="oferta");
   var pv = document.getElementById("view-planos");
   if(pv){ pv.classList.toggle("gift-on", m==="oferta"); }
@@ -925,12 +1024,21 @@ function setMode(m){
 
 function selectPlan(id){ state.planoId = id; renderPlans(); renderSummary(); }
 
+function setPeriod(id){
+  state.periodicidade = id;
+  for(var i=0;i<PERIODOS.length;i++){
+    var b = document.getElementById("per-"+PERIODOS[i].id);
+    if(b){ b.setAttribute("aria-pressed", PERIODOS[i].id===id); }
+  }
+  renderSummary();
+}
+
 function renderPlans(){
   var list = document.getElementById("plansList");
   list.innerHTML = "";
   for(var i=0;i<PLANOS.length;i++){
     var p = PLANOS[i];
-    if(state.mode==="oferta" && p.id==="rec") continue; // ocultar recorrente na oferta
+    if(p.modes.indexOf(state.mode)<0) continue; // mostrar apenas planos validos para o modo
     var sel = state.planoId===p.id;
     var badge = p.badge ? '<span class="pl-badge">'+p.badge+'</span>' : '';
     var btn = document.createElement("button");
@@ -970,6 +1078,7 @@ function renderSummary(){
     rows += '<div class="sum-row"><span>Subscrição de '+ c.meses +' meses ('+ eur(PRECO) +' × '+ c.meses +')</span><span>'+ eur(c.subtotal) +'</span></div>';
   }
   if(c.desconto>0){ rows += '<div class="sum-row"><span>Desconto 1.º mês (-20%)</span><span>-'+ eur(c.desconto) +'</span></div>'; }
+  rows += '<div class="sum-row"><span>Entregas</span><span>'+ periodoById(state.periodicidade).label +'</span></div>';
   if(state.mode==="oferta"){ rows += '<div class="sum-row"><span>Modo</span><span>Oferta</span></div>'; }
   var totalLabel = c.recorrente ? ('<span id="sumTotalVal">'+eur(c.total)+'</span> <span style="font-size:.7rem;font-weight:400">1.º mês</span>') : ('<span id="sumTotalVal">'+eur(c.total)+'</span>');
   rows += '<div class="sum-row total"><span>'+ (c.recorrente?"Hoje":"Total") +'</span><span>'+ totalLabel +'</span></div>';
@@ -991,6 +1100,7 @@ function addToCart(){
     subtotal: c.subtotal,
     desconto: c.desconto,
     total: c.total,
+    periodicidade: state.periodicidade,
     giftMsg: state.mode==="oferta" ? state.giftMsg : ""
   };
   state.crossSell = false;
@@ -1062,6 +1172,33 @@ function renderCheckoutSummary(){
   el.innerHTML = rows;
 }
 
+// meio de pagamento (simulado): alterna o bloco visivel
+function setPay(m){
+  state.pagamento = m;
+  var ids = ["cartao","mbway","multibanco"];
+  for(var i=0;i<ids.length;i++){ var b=document.getElementById("pay-"+ids[i]); if(b){ b.setAttribute("aria-pressed", ids[i]===m); } }
+  renderPayMock(m);
+}
+function renderPayMock(m){
+  var el = document.getElementById("payMock");
+  if(!el){ return; }
+  var flag = '<div class="sim-flag">Pagamento simulado &middot; sem cobrança real</div>';
+  var body = "";
+  if(m==="mbway"){
+    body = '<div class="form-grid"><div class="full"><label>Número de telemóvel (MB WAY)</label><input class="inp" type="text" value="9XX XXX XXX" disabled></div></div><p class="sum-note">Receberias um pedido de pagamento na app MB WAY.</p>';
+  } else if(m==="multibanco"){
+    body = '<div class="form-grid"><div><label>Entidade</label><input class="inp" type="text" value="21800" disabled></div><div><label>Referência</label><input class="inp" type="text" value="123 456 789" disabled></div><div><label>Valor</label><input class="inp" type="text" value="'+ eur(cartTotal()) +'" disabled></div></div>';
+  } else {
+    body = '<div class="form-grid"><div class="full"><label>Número do cartão</label><input class="inp" type="text" value="4000 0000 0000 0000" disabled></div><div><label>Validade</label><input class="inp" type="text" value="12/28" disabled></div><div><label>CVV</label><input class="inp" type="text" value="•••" disabled></div></div>';
+  }
+  el.innerHTML = flag + body;
+}
+function toggleFaturacao(){
+  var c = document.getElementById("f-fatIgual");
+  var m = document.getElementById("fatMorada");
+  if(m){ m.hidden = !!(c && c.checked); }
+}
+
 function finalizar(){
   // verificacao de maioridade antes da conclusao (obrigatoria)
   var idade = document.getElementById("f-idade");
@@ -1092,6 +1229,12 @@ function finalizar(){
   card.innerHTML = '<div class="sum-row"><span>Nº da subscrição</span><span><b>'+ num +'</b></span></div>'+ linhas;
   var ref = "OIO-" + (primeiro? primeiro.toUpperCase().slice(0,6) : "AMIGA");
   document.getElementById("refCode").textContent = ref;
+  // calendario de expedicoes, segundo a periodicidade escolhida
+  var per = periodoById(it ? it.periodicidade : state.periodicidade);
+  var totalPacks = it ? (it.recorrente ? 4 : it.meses) : 4;
+  var mostra = Math.min(totalPacks, 4);
+  var datas = nextDates(mostra, per.meses);
+  renderCalendario(datas, it, per, totalPacks);
   // registar a subscricao para a area de subscritora (estado em memoria)
   state.subscricao = {
     numero: num,
@@ -1101,6 +1244,10 @@ function finalizar(){
     morada: moradaEntrega,
     oferta: isGift,
     destinatario: destinatario,
+    periodicidade: per.label,
+    pagamento: state.pagamento,
+    marketing: !!(document.getElementById("f-marketing") && document.getElementById("f-marketing").checked),
+    calendario: datas,
     estado: "ativa",
     historico: HISTORICO_DEMO.slice()
   };
@@ -1112,10 +1259,32 @@ function finalizar(){
 }
 
 // ---------- area de subscritora ----------
+var MESES_PT = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+// gera 'count' datas de expedicao espacadas por 'stepMonths' meses, a partir de daqui a ~3 dias
+function nextDates(count, stepMonths){
+  var out = [];
+  var base = new Date(); base.setDate(base.getDate() + 3);
+  var dia = Math.min(base.getDate(), 28);
+  for(var i=0;i<count;i++){
+    var d = new Date(base.getFullYear(), base.getMonth() + i*stepMonths, dia);
+    out.push(d.getDate() + " de " + MESES_PT[d.getMonth()] + " de " + d.getFullYear());
+  }
+  return out;
+}
+function renderCalendario(datas, it, per, totalPacks){
+  var cc = document.getElementById("calendarCard");
+  if(!cc){ return; }
+  var lis = "";
+  for(var i=0;i<datas.length;i++){
+    lis += '<div class="sum-row"><span>'+ (i+1) +'.ª expedição</span><span>'+ datas[i] +'</span></div>';
+  }
+  var nota = "";
+  if(it && it.recorrente){ nota = '<p class="sum-note">Entregas '+ per.label.toLowerCase() +', até cancelares.</p>'; }
+  else if(it && totalPacks > datas.length){ nota = '<p class="sum-note">… e assim sucessivamente até completar '+ totalPacks +' entregas.</p>'; }
+  cc.innerHTML = '<h3 style="font-size:1.05rem;margin-bottom:.6rem">Calendário de expedições</h3>'+ lis + nota;
+}
 function proximaExpedicao(){
-  var d = new Date(); d.setDate(d.getDate() + 7);
-  var meses = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-  return d.getDate() + " de " + meses[d.getMonth()];
+  return nextDates(1, 1)[0];
 }
 
 function renderConta(){
@@ -1134,6 +1303,7 @@ function renderConta(){
     '<h3>Estado da subscrição <span class="estado-badge '+badgeCls+'">'+badgeTxt+'</span></h3>'+
     '<div class="sum-row"><span>Nº da subscrição</span><span><b>'+ s.numero +'</b></span></div>'+
     '<div class="sum-row"><span>Plano</span><span>'+ s.plano + (s.recorrente?" (renovação mensal)":"") +'</span></div>'+
+    (s.periodicidade ? '<div class="sum-row"><span>Entregas</span><span>'+ s.periodicidade +'</span></div>' : '')+
     (s.oferta ? '<div class="sum-row"><span>Oferta para</span><span>'+ (escTxt(s.destinatario) || "—") +'</span></div>' : '')+
     '<div class="sum-row"><span>Próxima expedição</span><span>'+ (s.estado==="ativa" ? proximaExpedicao() : (s.estado==="suspensa" ? "Em pausa" : "—")) +'</span></div>'+
   '</div>';
@@ -1167,7 +1337,16 @@ function renderConta(){
     '<p class="sum-note" id="moradaMsg" hidden>Morada atualizada.</p>'+
   '</div>';
 
-  // 4. historico de packs recebidos
+  // 4. calendario de expedicoes (se a subscricao estiver ativa)
+  if(s.estado==="ativa" && s.calendario && s.calendario.length){
+    var cal = "";
+    for(var ci=0; ci<s.calendario.length; ci++){
+      cal += '<div class="sum-row"><span>'+ (ci+1) +'.ª expedição</span><span>'+ s.calendario[ci] +'</span></div>';
+    }
+    html += '<div class="conta-card"><h3>Calendário de expedições</h3>'+ cal +'</div>';
+  }
+
+  // 5. historico de packs recebidos
   var hist = "";
   for(var i=0;i<s.historico.length;i++){
     var h = s.historico[i];
@@ -1197,6 +1376,43 @@ function cookieChoice(v){
   var b = document.getElementById("cookieBanner");
   if(b){ b.hidden = true; }
 }
+function gerirCookies(){ closeLegal(); var b=document.getElementById("cookieBanner"); if(b){ b.hidden=false; } }
+
+// ---------- informacao legal (RGPD, resolucao, termos, cookies) ----------
+var LEGAL = {
+  privacidade: { t:"Política de privacidade (RGPD)", h:
+    '<p>Tratamos os teus dados apenas para o estritamente necessário à execução da subscrição: entrega, faturação, comunicação sobre o serviço e cumprimento de obrigações legais. O consentimento para marketing é recolhido em separado e é opcional.</p>'+
+    '<p><b>Os teus direitos.</b> Tens direito de <b>acesso</b>, <b>retificação</b>, <b>apagamento</b>, <b>limitação do tratamento</b>, <b>portabilidade</b> e <b>oposição</b> ao tratamento dos teus dados pessoais.</p>'+
+    '<p><b>Como os exercer.</b> Escreve para <b>privacidade@oiowine.pt</b>. Respondemos no prazo legal. Tens também o direito de reclamar junto da CNPD.</p>'+
+    '<p class="muted" style="font-size:.82rem">Protótipo académico — não há tratamento real de dados nem envio de comunicações.</p>' },
+  envios: { t:"Envios, devoluções e livre resolução", h:
+    '<p>Portes incluídos para Portugal continental. As expedições seguem a periodicidade escolhida na subscrição.</p>'+
+    '<p><b>Direito de livre resolução (14 dias).</b> Tens o direito de resolver o contrato no prazo de <b>14 dias</b> a contar da receção, sem necessidade de indicar qualquer motivo.</p>'+
+    '<p><b>Exceção para bens perecíveis.</b> Nos termos do Decreto-Lei n.º 24/2014, o direito de livre resolução <b>não é aplicável</b> a bens perecíveis nem a bens selados que, por razões de higiene e segurança alimentar, não possam ser devolvidos depois de abertos — é o caso das garrafas abertas e do aperitivo. Packs por abrir e ainda selados podem ser devolvidos dentro do prazo.</p>' },
+  termos: { t:"Termos e condições", h:
+    '<p>A óióWine é uma subscrição mensal de packs de vinho português com curadoria. Ao subscrever, aceitas receber os packs segundo o plano e a periodicidade escolhidos, com pagamento por pack.</p>'+
+    '<p>Podes suspender ou cancelar a subscrição a qualquer momento, sem penalização, na tua conta. A venda é proibida a menores de 18 anos.</p>'+
+    '<p class="muted" style="font-size:.82rem">Protótipo académico (ISCAP). Não há cobranças reais nem contrato comercial vinculativo.</p>' },
+  cookies: { t:"Gestão de cookies", h:
+    '<p>Por defeito usamos apenas cookies essenciais ao funcionamento do site. Os cookies não essenciais (estatística) só são usados com o teu consentimento, e recusá-los custa exatamente o mesmo que aceitá-los.</p>'+
+    '<p><button type="button" class="btn btn-ghost" onclick="gerirCookies()">Rever a minha escolha de cookies</button></p>' },
+  consumo: { t:"Consumo responsável", h:
+    '<p>Beba com moderação. A óióWine promove a descoberta do vinho com equilíbrio e responsabilidade.</p>'+
+    '<p><b>Venda proibida a menores de 18 anos.</b> Confirmamos a maioridade antes de concluir qualquer subscrição.</p>' },
+  faq: { t:"Perguntas frequentes", h:
+    '<p><b>O que recebo?</b> Dois vinhos portugueses de curadoria, um aperitivo regional e o folheto «Narrativas que Embebedam», todos os meses.</p>'+
+    '<p><b>Sei que vinhos vou receber?</b> Não — a surpresa faz parte. Sabes exatamente o que recebes em natureza, mas não a identidade dos vinhos.</p>'+
+    '<p><b>Posso cancelar?</b> Sim, a qualquer momento e sem burocracia, na tua conta. Também podes apenas suspender.</p>' }
+};
+function openLegal(topic){
+  var data = LEGAL[topic]; if(!data){ return; }
+  document.getElementById("legalTitle").textContent = data.t;
+  document.getElementById("legalBody").innerHTML = data.h;
+  var m = document.getElementById("legalModal");
+  if(m){ m.hidden = false; var c=m.querySelector(".legal-close"); if(c){ c.focus(); } }
+}
+function closeLegal(){ var m=document.getElementById("legalModal"); if(m){ m.hidden = true; } }
+document.addEventListener("keydown", function(e){ if(e.key==="Escape"){ closeLegal(); } });
 
 // ---------- animacao do preco ----------
 function animateMoney(el, to){
