@@ -222,7 +222,7 @@
   /* revelação de cor por scroll (Playfair grande, à la moneyincheck) */
   .reveal-steps{margin-top:clamp(2.6rem,6vw,4.6rem); display:flex; flex-direction:column; gap:clamp(2.6rem,7vw,5rem);}
   .reveal-kicker{display:block; font-size:.72rem; letter-spacing:.26em; text-transform:uppercase; color:var(--terra); font-weight:600; margin-bottom:.9rem;}
-  .reveal-line{font-family:"Playfair Display",Georgia,serif; font-weight:500; font-size:clamp(1.7rem,4.7vw,3.4rem); line-height:1.2; letter-spacing:-.04em; margin:0; max-width:24ch;}
+  .reveal-line{font-family:"Playfair Display",Georgia,serif; font-weight:500; font-size:clamp(1.7rem,4.7vw,3.4rem); line-height:1.18; letter-spacing:-.055em; margin:0; max-width:24ch;}
   .reveal-line .word{color:rgba(70,49,43,.16); transition:color .5s var(--ease);}
   .reveal-line .word.lit{color:var(--head);}
   @media (prefers-reduced-motion: reduce){ .reveal-line .word{color:var(--head) !important;} }
@@ -687,6 +687,29 @@
 
   <!-- FUNCIONA -->
   <section class="view" id="view-funciona" tabindex="-1">
+    <section class="block oliva"><div class="wrap">
+      <p class="eyebrow">Simples como um brinde</p>
+      <h2>Como funciona</h2>
+      <div class="reveal-steps">
+        <div class="reveal-step">
+          <span class="reveal-kicker">01 — Escolhes o plano</span>
+          <p class="reveal-line" data-reveal>Para ti ou para oferecer. Um mês para experimentar, ou recorrente para nunca falhar.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">02 — Nós curamos</span>
+          <p class="reveal-line" data-reveal>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">03 — Chega a casa</span>
+          <p class="reveal-line" data-reveal>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">04 — Provas e brilhas</span>
+          <p class="reveal-line" data-reveal>Abres, provas com o guia, e partilhas. Repetes no mês seguinte.</p>
+        </div>
+      </div>
+    </div></section>
+
     <section class="block"><div class="wrap">
       <p class="eyebrow">O pack de fevereiro</p>
       <div class="pack" style="margin-top:1.2rem">
@@ -710,29 +733,6 @@
             <li><span class="k">Folheto</span><span>Guia de prova com a história das duas regiões e sugestões de harmonização.</span></li>
           </ul>
           <button class="btn btn-primary" onclick="go('planos')">Quero este pack</button>
-        </div>
-      </div>
-    </div></section>
-
-    <section class="block oliva"><div class="wrap">
-      <p class="eyebrow">Simples como um brinde</p>
-      <h2>Como funciona</h2>
-      <div class="reveal-steps">
-        <div class="reveal-step">
-          <span class="reveal-kicker">01 — Escolhes o plano</span>
-          <p class="reveal-line" data-reveal>Para ti ou para oferecer. Um mês para experimentar, ou recorrente para nunca falhar.</p>
-        </div>
-        <div class="reveal-step">
-          <span class="reveal-kicker">02 — Nós curamos</span>
-          <p class="reveal-line" data-reveal>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p>
-        </div>
-        <div class="reveal-step">
-          <span class="reveal-kicker">03 — Chega a casa</span>
-          <p class="reveal-line" data-reveal>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p>
-        </div>
-        <div class="reveal-step">
-          <span class="reveal-kicker">04 — Provas e brilhas</span>
-          <p class="reveal-line" data-reveal>Abres, provas com o guia, e partilhas. Repetes no mês seguinte.</p>
         </div>
       </div>
     </div></section>
