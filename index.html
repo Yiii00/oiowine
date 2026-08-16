@@ -161,7 +161,7 @@
   .btn-primary{background:var(--red); color:#fff;}
   .btn-primary:hover{background:#8f2d2b;}
   .btn-terra{background:var(--terra); color:#fff;}
-  .btn-terra:hover{background:#a5541f;}
+  .btn-terra:hover{background:var(--red);}
   .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
   .btn-ghost:hover{border-color:var(--terra); color:var(--terra);}
   .btn:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--terra); outline-offset:3px;}
@@ -215,13 +215,17 @@
   .porque .vp .n{color:var(--terra);}
   .porque .vp h3{color:#3d2621;}
   .porque .vp p{color:#6f6656;}
-  /* ===== "Como funciona": secção em Oliva Suave Terra, acentos recoloridos ===== */
-  .oliva{background:#9F9772;}
+  /* ===== "Como funciona": fundo claro para a revelação de cor ao scroll ===== */
+  .oliva{background:var(--ivory);}
   .oliva .eyebrow{color:var(--terra);}
-  .oliva h2{color:#3d2621;}
-  .oliva .step{border-left-color:var(--terra);}
-  .oliva .step::before{color:var(--terra);}
-  .oliva .step h3{color:#3d2621;}
+  .oliva h2{color:var(--head);}
+  /* revelação de cor por scroll (Playfair grande, à la moneyincheck) */
+  .reveal-steps{margin-top:clamp(2.6rem,6vw,4.6rem); display:flex; flex-direction:column; gap:clamp(2.6rem,7vw,5rem);}
+  .reveal-kicker{display:block; font-size:.72rem; letter-spacing:.26em; text-transform:uppercase; color:var(--terra); font-weight:600; margin-bottom:.9rem;}
+  .reveal-line{font-family:"Playfair Display",Georgia,serif; font-weight:500; font-size:clamp(1.7rem,4.7vw,3.4rem); line-height:1.22; letter-spacing:-.015em; margin:0; max-width:24ch;}
+  .reveal-line .word{color:rgba(70,49,43,.16); transition:color .5s var(--ease);}
+  .reveal-line .word.lit{color:var(--head);}
+  @media (prefers-reduced-motion: reduce){ .reveal-line .word{color:var(--head) !important;} }
   .oliva .step p{color:#4a4234;}
 
   /* pack card */
@@ -713,11 +717,23 @@
     <section class="block oliva"><div class="wrap">
       <p class="eyebrow">Simples como um brinde</p>
       <h2>Como funciona</h2>
-      <div class="steps">
-        <div class="step"><h3>Escolhes o plano</h3><p>Para ti ou para oferecer. Um mês para experimentar ou recorrente para nunca falhar.</p></div>
-        <div class="step"><h3>Nós curamos</h3><p>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p></div>
-        <div class="step"><h3>Chega a casa</h3><p>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p></div>
-        <div class="step"><h3>Provas e brilhas</h3><p>Abres, provas com o guia e partilhas. Repetes no mês seguinte.</p></div>
+      <div class="reveal-steps">
+        <div class="reveal-step">
+          <span class="reveal-kicker">01 — Escolhes o plano</span>
+          <p class="reveal-line" data-reveal>Para ti ou para oferecer. Um mês para experimentar, ou recorrente para nunca falhar.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">02 — Nós curamos</span>
+          <p class="reveal-line" data-reveal>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">03 — Chega a casa</span>
+          <p class="reveal-line" data-reveal>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p>
+        </div>
+        <div class="reveal-step">
+          <span class="reveal-kicker">04 — Provas e brilhas</span>
+          <p class="reveal-line" data-reveal>Abres, provas com o guia, e partilhas. Repetes no mês seguinte.</p>
+        </div>
       </div>
     </div></section>
   </section>
@@ -1003,6 +1019,7 @@ function go(name){
   if(name==="carrinho"){ renderCart(); }
   if(name==="checkout"){ renderCheckoutSummary(); setPay(state.pagamento); toggleFaturacao(); }
   if(name==="conta"){ renderConta(); }
+  if(name==="funciona"){ splitRevealWords(); requestAnimationFrame(updateRevealColors); }
 }
 
 // ---------- configurator ----------
@@ -1465,6 +1482,47 @@ function updateHeader(){
   header.classList.toggle("on-hero", !!(onHome && atTop));
 }
 window.addEventListener("scroll", updateHeader, {passive:true});
+
+// ---------- "Como funciona": revelação de cor por scroll (Playfair grande) ----------
+function splitRevealWords(){
+  var lines = document.querySelectorAll(".reveal-line[data-reveal]");
+  for(var i=0;i<lines.length;i++){
+    var line = lines[i];
+    if(line.getAttribute("data-split")){ continue; }
+    var words = line.textContent.trim().split(/\s+/);
+    line.textContent = "";
+    for(var w=0; w<words.length; w++){
+      var span = document.createElement("span");
+      span.className = "word";
+      span.textContent = words[w];
+      line.appendChild(span);
+      if(w < words.length-1){ line.appendChild(document.createTextNode(" ")); }
+    }
+    line.setAttribute("data-split","1");
+  }
+}
+function updateRevealColors(){
+  if(reduceMotion){ return; }
+  var fv = document.getElementById("view-funciona");
+  if(!fv || !fv.classList.contains("active")){ return; }
+  var lines = document.querySelectorAll(".reveal-line[data-reveal]");
+  var vh = window.innerHeight || document.documentElement.clientHeight;
+  var startY = vh*0.82, endY = vh*0.42; // zona onde a linha "acende" ao subir no ecrã
+  for(var i=0;i<lines.length;i++){
+    var r = lines[i].getBoundingClientRect();
+    var p = (startY - r.top) / (startY - endY);
+    p = Math.max(0, Math.min(1, p));
+    var words = lines[i].getElementsByClassName("word");
+    var lit = Math.round(p * words.length);
+    for(var w=0; w<words.length; w++){ words[w].classList.toggle("lit", w < lit); }
+  }
+}
+var _revScrollRAF = null;
+window.addEventListener("scroll", function(){
+  if(_revScrollRAF){ return; }
+  _revScrollRAF = requestAnimationFrame(function(){ _revScrollRAF = null; updateRevealColors(); });
+}, {passive:true});
+window.addEventListener("resize", updateRevealColors, {passive:true});
 function setHeaderH(){ var h = document.querySelector(".site-header"); if(h){ document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px"); } }
 window.addEventListener("resize", setHeaderH);
 window.addEventListener("load", setHeaderH);
