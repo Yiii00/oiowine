@@ -1600,7 +1600,7 @@ function updateRevealColors(){
   if(!fv || !fv.classList.contains("active")){ return; }
   var lines = document.querySelectorAll(".reveal-line[data-reveal]");
   var vh = window.innerHeight || document.documentElement.clientHeight;
-  var startY = vh*0.82, endY = vh*0.42; // zona onde a linha "acende" ao subir no ecrã
+  var startY = vh*0.72, endY = vh*0.16; // janela larga e alta: as palavras ficam ténues mais tempo e só acabam de acender perto do topo, tornando a ativação por scroll mais notória
   for(var i=0;i<lines.length;i++){
     var r = lines[i].getBoundingClientRect();
     var p = (startY - r.top) / (startY - endY);
