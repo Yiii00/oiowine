@@ -221,8 +221,8 @@
   .oliva h2{color:var(--head);}
   /* revelação de cor por scroll (Playfair grande, à la moneyincheck) */
   .reveal-steps{margin-top:clamp(2.6rem,6vw,4.6rem); display:flex; flex-direction:column; gap:clamp(2.6rem,7vw,5rem);}
-  .reveal-step{display:flex; flex-direction:column; align-items:flex-start;} /* 01 e 03: encostados à esquerda */
-  .reveal-step:nth-child(even){align-items:flex-end;}                        /* 02 e 04: encostados à direita, texto à esquerda dentro do bloco */
+  .reveal-inner{width:fit-content; max-width:100%;} /* encolhe à largura da frase; kicker + frase partilham a mesma margem esquerda */
+  .reveal-step:nth-child(even) .reveal-inner{margin-left:auto;} /* 02 e 04: bloco empurrado p/ a direita, texto e kicker à esquerda dentro do bloco */
   .reveal-kicker{display:block; font-size:.72rem; letter-spacing:.26em; text-transform:uppercase; color:var(--terra); font-weight:600; margin-bottom:.9rem;}
   .reveal-line{font-family:"Playfair Display",Georgia,serif; font-weight:400; font-size:clamp(1.7rem,4.7vw,3.4rem); line-height:1.18; letter-spacing:-.055em; margin:0; max-width:24ch; text-align:left;}
   .reveal-line .word{color:rgba(70,49,43,.16); transition:color .5s var(--ease);}
@@ -716,20 +716,28 @@
       <h2>Como funciona</h2>
       <div class="reveal-steps">
         <div class="reveal-step">
-          <span class="reveal-kicker">01 — Escolhes o plano</span>
-          <p class="reveal-line" data-reveal>Para ti ou para oferecer. Um mês para experimentar, ou recorrente para nunca falhar.</p>
+          <div class="reveal-inner">
+            <span class="reveal-kicker">01 — Escolhes o plano</span>
+            <p class="reveal-line" data-reveal>Para ti ou para oferecer. Um mês para experimentar, ou recorrente para nunca falhar.</p>
+          </div>
         </div>
         <div class="reveal-step">
-          <span class="reveal-kicker">02 — Nós curamos</span>
-          <p class="reveal-line" data-reveal>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p>
+          <div class="reveal-inner">
+            <span class="reveal-kicker">02 — Nós curamos</span>
+            <p class="reveal-line" data-reveal>Todos os meses selecionamos vinhos portugueses distintos e preparamos o teu pack.</p>
+          </div>
         </div>
         <div class="reveal-step">
-          <span class="reveal-kicker">03 — Chega a casa</span>
-          <p class="reveal-line" data-reveal>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p>
+          <div class="reveal-inner">
+            <span class="reveal-kicker">03 — Chega a casa</span>
+            <p class="reveal-line" data-reveal>Recebes a caixa com portes incluídos e a surpresa por descobrir.</p>
+          </div>
         </div>
         <div class="reveal-step">
-          <span class="reveal-kicker">04 — Provas e brilhas</span>
-          <p class="reveal-line" data-reveal>Abres, provas com o guia, e partilhas. Repetes no mês seguinte.</p>
+          <div class="reveal-inner">
+            <span class="reveal-kicker">04 — Provas e brilhas</span>
+            <p class="reveal-line" data-reveal>Abres, provas com o guia, e partilhas. Repetes no mês seguinte.</p>
+          </div>
         </div>
       </div>
     </div></section>
