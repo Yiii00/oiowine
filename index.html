@@ -300,6 +300,12 @@
   .sum-row{display:flex; justify-content:space-between; padding:.55rem 0; font-size:.92rem; border-bottom:1px dashed var(--line);}
   .sum-row.total{border-bottom:0; border-top:2px solid var(--ink); margin-top:.4rem; padding-top:.9rem; font-size:1.15rem; font-weight:600; font-family:"Playfair Display",serif;}
   .sum-note{font-size:.78rem; color:var(--muted); margin-top:.8rem;}
+  /* valores (coluna direita) dos resumos em Playfair Display com algarismos tabulares e lining */
+  .summary .sum-row > span:last-child{
+    font-family:"Playfair Display",Georgia,serif;
+    font-variant-numeric:tabular-nums lining-nums;
+    font-feature-settings:"tnum" 1,"lnum" 1;
+  }
 
   /* cart */
   .line-item{display:flex; gap:1.2rem; align-items:flex-start; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:1.2rem; margin-bottom:1rem;}
