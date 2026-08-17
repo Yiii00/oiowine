@@ -1192,10 +1192,13 @@ function updateCount(){
 function toggleCross(){ state.crossSell = !state.crossSell; renderCart(); }
 function removeItem(){ state.carrinho = null; state.crossSell=false; updateCount(); renderCart(); }
 
+// complemento do carrinho: venda cruzada como enriquecimento (acessório de prova), nunca condição — ver spec §6
+var COMPLEMENTO = { label:"Kit de prova", sub:"Duas taças de cristal e um arejador", valor:24 };
+
 function cartTotal(){
   if(!state.carrinho) return 0;
   var t = state.carrinho.total;
-  if(state.crossSell){ t += PRECO; } // oferta extra 1 mes
+  if(state.crossSell){ t += COMPLEMENTO.valor; } // complemento (kit de prova)
   return t;
 }
 
@@ -1220,9 +1223,9 @@ function renderCart(){
    '</div>';
 
   if(!state.crossSell){
-    html += '<div class="cross-sell"><div><b>Oferecer também a uma amiga?</b><div class="muted" style="font-size:.85rem">Acrescenta um pack-oferta de 1 mês por '+ eur(PRECO) +'.</div></div><button class="btn btn-ghost" onclick="toggleCross()">Adicionar</button></div>';
+    html += '<div class="cross-sell"><div><b>Juntar um kit de prova?</b><div class="muted" style="font-size:.85rem">'+ COMPLEMENTO.sub +', por '+ eur(COMPLEMENTO.valor) +'.</div></div><button class="btn btn-ghost" onclick="toggleCross()">Adicionar</button></div>';
   } else {
-    html += '<div class="line-item"><div class="li-visual">%%BOTTLES_SM%%</div><div class="li-main"><div style="display:flex;justify-content:space-between;gap:1rem"><b>Pack-oferta (1 mês)</b><b>'+ eur(PRECO) +'</b></div><div class="muted" style="font-size:.88rem">Para oferecer a uma amiga</div><div class="li-actions"><button onclick="toggleCross()">Remover</button></div></div></div>';
+    html += '<div class="line-item"><div class="li-visual" style="font-size:2rem">🥂</div><div class="li-main"><div style="display:flex;justify-content:space-between;gap:1rem"><b>'+ COMPLEMENTO.label +'</b><b>'+ eur(COMPLEMENTO.valor) +'</b></div><div class="muted" style="font-size:.88rem">'+ COMPLEMENTO.sub +'</div><div class="li-actions"><button onclick="toggleCross()">Remover</button></div></div></div>';
   }
 
   html += '<div class="summary" style="position:static;margin-top:1.5rem">'+
@@ -1245,7 +1248,7 @@ function renderCheckoutSummary(){
   if(!state.carrinho){ el.innerHTML = '<p class="muted">Carrinho vazio.</p>'; return; }
   var it = state.carrinho;
   var rows = '<div class="sum-row"><span>'+ (isGift?"Oferta ":"Subscrição ") + it.plano +'</span><span>'+ eur(it.total) +'</span></div>';
-  if(state.crossSell){ rows += '<div class="sum-row"><span>Pack-oferta (1 mês)</span><span>'+ eur(PRECO) +'</span></div>'; }
+  if(state.crossSell){ rows += '<div class="sum-row"><span>'+ COMPLEMENTO.label +'</span><span>'+ eur(COMPLEMENTO.valor) +'</span></div>'; }
   rows += '<div class="sum-row"><span>Portes</span><span>Incluídos</span></div>';
   rows += '<div class="sum-row total"><span>Total</span><span>'+ eur(cartTotal()) +'</span></div>';
   el.innerHTML = rows;
@@ -1303,7 +1306,7 @@ function finalizar(){
   }
   var card = document.getElementById("orderCard");
   var linhas = it ? ('<div class="sum-row"><span>Plano</span><span>'+ it.plano + (it.recorrente?" (mensal)":"") +'</span></div>'+
-     (state.crossSell?'<div class="sum-row"><span>Pack-oferta</span><span>1 mês</span></div>':'')+
+     (state.crossSell?'<div class="sum-row"><span>'+ COMPLEMENTO.label +'</span><span>'+ eur(COMPLEMENTO.valor) +'</span></div>':'')+
      '<div class="sum-row total"><span>Total pago</span><span>'+ eur(cartTotal()) +'</span></div>') : '';
   card.innerHTML = '<div class="sum-row"><span>Nº da '+ (isGift?"oferta":"subscrição") +'</span><span><b>'+ num +'</b></span></div>'+ linhas;
   var ref = "OIO-" + (primeiro? primeiro.toUpperCase().slice(0,6) : "AMIGA");
