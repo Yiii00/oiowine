@@ -150,7 +150,7 @@
   .brand span{font-family:"Playfair Display",serif; font-weight:600; font-size:1.15rem; letter-spacing:.01em;}
   .nav{display:flex; align-items:center; gap:.35rem;}
   .nav button{background:none; border:0; font-family:inherit; font-size:.63rem; text-transform:uppercase; letter-spacing:.15em; font-weight:500; color:var(--ink); cursor:pointer; padding:.5rem .55rem; border-radius:6px;}
-  .nav button:hover{color:var(--terra);}
+  .nav button:not(.cart-btn):hover{color:var(--terra);} /* cart-btn tem o seu próprio hover (texto branco); não herda a cor terra do nav */
   .nav button[aria-current="page"]{color:var(--terra); font-weight:600;}
   .cart-btn{position:relative; border:1px solid var(--line) !important; border-radius:999px !important; padding:.5rem .9rem !important; display:inline-flex; align-items:center; gap:.4rem;}
   .cart-count{background:var(--red); color:#fff; font-size:.62rem; font-weight:600; min-width:1.15rem; height:1.15rem; border-radius:999px; display:inline-grid; place-items:center; padding:0 .3rem;}
@@ -307,6 +307,11 @@
     font-feature-settings:"tnum" 1,"lnum" 1;
   }
   .sum-head{display:flex; align-items:baseline; justify-content:space-between; gap:1rem;}
+  .sum-head-titles{display:flex; align-items:center; gap:.55rem; flex-wrap:wrap;}
+  /* pill que identifica sem ambiguidade o modo do plano (para ti / para oferecer) */
+  .sum-mode-pill{font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; font-weight:600; padding:.28rem .62rem; border-radius:999px; white-space:nowrap; line-height:1;}
+  .sum-mode-pill.mim{background:rgba(159,151,114,.22); color:var(--brown);}
+  .sum-mode-pill.oferta{background:var(--terra); color:#fff;}
   .sum-reset{padding:0; font-size:.8rem; flex:0 0 auto;}
 
   /* cart */
@@ -424,7 +429,7 @@
   .summary{transition:border-color .45s var(--ease), box-shadow .45s var(--ease);}
   #view-planos.gift-on .summary{border-color:rgba(188,100,47,.45); box-shadow:0 20px 44px rgba(188,100,47,.16);}
   .gift-ribbon{display:none;}
-  #view-planos.gift-on .gift-ribbon{display:block; margin:-.2rem 0 1.1rem; padding:.6rem .9rem; border-radius:10px; font-size:.78rem; text-align:center;
+  #view-planos.gift-on .gift-ribbon{display:block; margin:.5rem 0 1.2rem; padding:.6rem .9rem; border-radius:10px; font-size:.78rem; text-align:center;
     color:#fff; background:var(--terra); box-shadow:0 8px 18px rgba(188,100,47,.28); animation:ribbonIn .5s var(--ease) both;}
   @keyframes ribbonIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:none;}}
 
@@ -805,11 +810,14 @@
         </div>
 
         <aside class="summary" aria-live="polite">
-          <div class="gift-ribbon" aria-hidden="true">Modo oferta: vai com laço e dedicatória dentro da caixa</div>
           <div class="sum-head">
-            <h3>O teu plano</h3>
+            <div class="sum-head-titles">
+              <h3 id="sumTitle">A tua subscrição</h3>
+              <span class="sum-mode-pill mim" id="sumModePill">Para ti</span>
+            </div>
             <button type="button" class="btn-link sum-reset" onclick="resetConfig()">Recomeçar</button>
           </div>
+          <div class="gift-ribbon" aria-hidden="true">Esta subscrição é uma oferta: vai com laço e dedicatória dentro da caixa, para outra pessoa.</div>
           <div id="sumBody"></div>
           <button class="btn btn-primary btn-lg" style="width:100%;margin-top:1.2rem" onclick="addToCart()">Adicionar à subscrição</button>
           <p class="sum-note">Portes incluídos para Portugal continental. Cancelas quando quiseres.</p>
@@ -1069,6 +1077,11 @@ function setMode(m){
   document.getElementById("giftField").classList.toggle("show", m==="oferta");
   var pv = document.getElementById("view-planos");
   if(pv){ pv.classList.toggle("gift-on", m==="oferta"); }
+  // deixar inequívoco no resumo se é para a própria ou uma oferta
+  var st = document.getElementById("sumTitle");
+  var sp = document.getElementById("sumModePill");
+  if(st){ st.textContent = (m==="oferta") ? "A tua oferta" : "A tua subscrição"; }
+  if(sp){ sp.textContent = (m==="oferta") ? "Para oferecer" : "Para ti"; sp.className = "sum-mode-pill " + (m==="oferta" ? "oferta" : "mim"); }
   renderPlans();
   renderSummary();
 }
@@ -1141,7 +1154,6 @@ function renderSummary(){
   }
   if(c.desconto>0){ rows += '<div class="sum-row"><span>Desconto 1.º mês (-20%)</span><span>-'+ eur(c.desconto) +'</span></div>'; }
   rows += '<div class="sum-row"><span>Entregas</span><span>'+ periodoById(state.periodicidade).label +'</span></div>';
-  if(state.mode==="oferta"){ rows += '<div class="sum-row"><span>Modo</span><span>Oferta</span></div>'; }
   var totalLabel = c.recorrente ? ('<span id="sumTotalVal">'+eur(c.total)+'</span> <span style="font-size:.7rem;font-weight:400">1.º mês</span>') : ('<span id="sumTotalVal">'+eur(c.total)+'</span>');
   rows += '<div class="sum-row total"><span>'+ (c.recorrente?"Hoje":"Total") +'</span><span>'+ totalLabel +'</span></div>';
   if(c.recorrente){ rows += '<p class="sum-note">Começas com 2 packs (1.º a -20%, 2.º a '+ eur(PRECO) +'). Depois, cancelas quando quiseres. Portes incluídos.</p>'; }
