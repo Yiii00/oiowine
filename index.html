@@ -306,6 +306,8 @@
     font-variant-numeric:tabular-nums lining-nums;
     font-feature-settings:"tnum" 1,"lnum" 1;
   }
+  .sum-head{display:flex; align-items:baseline; justify-content:space-between; gap:1rem;}
+  .sum-reset{padding:0; font-size:.8rem; flex:0 0 auto;}
 
   /* cart */
   .line-item{display:flex; gap:1.2rem; align-items:flex-start; background:var(--white); border:1px solid var(--line); border-radius:14px; padding:1.2rem; margin-bottom:1rem;}
@@ -804,7 +806,10 @@
 
         <aside class="summary" aria-live="polite">
           <div class="gift-ribbon" aria-hidden="true">Modo oferta: vai com laço e dedicatória dentro da caixa</div>
-          <h3>O teu plano</h3>
+          <div class="sum-head">
+            <h3>O teu plano</h3>
+            <button type="button" class="btn-link sum-reset" onclick="resetConfig()">Recomeçar</button>
+          </div>
           <div id="sumBody"></div>
           <button class="btn btn-primary btn-lg" style="width:100%;margin-top:1.2rem" onclick="addToCart()">Adicionar à subscrição</button>
           <p class="sum-note">Portes incluídos para Portugal continental. Cancelas quando quiseres.</p>
@@ -1077,6 +1082,17 @@ function setPeriod(id){
     if(b){ b.setAttribute("aria-pressed", PERIODOS[i].id===id); }
   }
   renderSummary();
+}
+
+// recomeçar: repõe o configurador nos valores iniciais
+function resetConfig(){
+  state.planoId = "rec";
+  state.periodicidade = "mensal";
+  state.giftMsg = "";
+  var gt = document.getElementById("giftText");
+  if(gt){ gt.value = ""; }
+  setPeriod("mensal"); // atualiza os botões de periodicidade
+  setMode("mim");      // repõe modo, esconde a mensagem de oferta e re-renderiza planos + resumo
 }
 
 function renderPlans(){
