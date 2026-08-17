@@ -1006,11 +1006,11 @@ var state = {
   marketing: false
 };
 var PLANOS = [
-  {id:"1",  label:"1 mês",     meses:1,  nota:"Experimentar sem compromisso", badge:"", modes:["mim"]},
+  {id:"1",  label:"1 mês",     meses:1,  nota:"Um pack único, sem renovação nem compromisso", badge:"Pack único", modes:["mim"]},
   {id:"3",  label:"3 meses",   meses:3,  nota:"A dose certa para criar hábito", badge:"", modes:["mim","oferta"]},
   {id:"6",  label:"6 meses",   meses:6,  nota:"A experiência completa", badge:"Mais popular", modes:["mim","oferta"]},
   {id:"12", label:"12 meses",  meses:12, nota:"Um ano inteiro de descobertas", badge:"Melhor oferta", modes:["oferta"]},
-  {id:"rec",label:"Recorrente",meses:0,  nota:"Renova todos os meses, cancela quando quiser", badge:"1.º mês a -20%", modes:["mim"]}
+  {id:"rec",label:"Recorrente",meses:0,  nota:"Todos os meses. Começas com 2 packs, depois cancelas quando quiseres", badge:"1.º mês a -20%", modes:["mim"]}
 ];
 // periodicidade das entregas (nao altera o preco por pack; define a cadencia)
 var PERIODOS = [
@@ -1144,7 +1144,7 @@ function renderSummary(){
   if(state.mode==="oferta"){ rows += '<div class="sum-row"><span>Modo</span><span>Oferta</span></div>'; }
   var totalLabel = c.recorrente ? ('<span id="sumTotalVal">'+eur(c.total)+'</span> <span style="font-size:.7rem;font-weight:400">1.º mês</span>') : ('<span id="sumTotalVal">'+eur(c.total)+'</span>');
   rows += '<div class="sum-row total"><span>'+ (c.recorrente?"Hoje":"Total") +'</span><span>'+ totalLabel +'</span></div>';
-  if(c.recorrente){ rows += '<p class="sum-note">Depois, '+ eur(PRECO) +' por mês. Sem fidelização. Portes incluídos.</p>'; }
+  if(c.recorrente){ rows += '<p class="sum-note">Começas com 2 packs (1.º a -20%, 2.º a '+ eur(PRECO) +'). Depois, cancelas quando quiseres. Portes incluídos.</p>'; }
   else { rows += '<p class="sum-note">Portes já incluídos no valor de cada pack.</p>'; }
   body.innerHTML = rows;
   var tv = document.getElementById("sumTotalVal");
@@ -1453,7 +1453,7 @@ var LEGAL = {
     '<p><b>Exceção para bens perecíveis.</b> Nos termos do Decreto-Lei n.º 24/2014, o direito de livre resolução <b>não é aplicável</b> a bens perecíveis nem a bens selados que, por razões de higiene e segurança alimentar, não possam ser devolvidos depois de abertos — é o caso das garrafas abertas e do aperitivo. Packs por abrir e ainda selados podem ser devolvidos dentro do prazo.</p>' },
   termos: { t:"Termos e condições", h:
     '<p>A óióWine é uma subscrição mensal de packs de vinho português com curadoria. Ao subscrever, aceitas receber os packs segundo o plano e a periodicidade escolhidos, com pagamento por pack.</p>'+
-    '<p>Podes suspender ou cancelar a subscrição a qualquer momento, sem penalização, na tua conta. A venda é proibida a menores de 18 anos.</p>'+
+    '<p>A subscrição recorrente tem um compromisso mínimo de dois packs; a partir da 2.ª entrega, podes suspender ou cancelar a qualquer momento, sem penalização, na tua conta. O pack único (1 mês) não renova. A venda é proibida a menores de 18 anos.</p>'+
     '<p class="muted" style="font-size:.82rem">Protótipo académico (ISCAP). Não há cobranças reais nem contrato comercial vinculativo.</p>' },
   cookies: { t:"Gestão de cookies", h:
     '<p>Por defeito usamos apenas cookies essenciais ao funcionamento do site. Os cookies não essenciais (estatística) só são usados com o teu consentimento, e recusá-los custa exatamente o mesmo que aceitá-los.</p>'+
@@ -1464,7 +1464,7 @@ var LEGAL = {
   faq: { t:"Perguntas frequentes", h:
     '<p><b>O que recebo?</b> Dois vinhos portugueses de curadoria, um aperitivo regional e o folheto «Narrativas que Embebedam», todos os meses.</p>'+
     '<p><b>Sei que vinhos vou receber?</b> Não — a surpresa faz parte. Sabes exatamente o que recebes em natureza, mas não a identidade dos vinhos.</p>'+
-    '<p><b>Posso cancelar?</b> Sim, a qualquer momento e sem burocracia, na tua conta. Também podes apenas suspender.</p>' }
+    '<p><b>Posso cancelar?</b> Sim, sem burocracia, na tua conta. A subscrição recorrente cancela-se a partir da 2.ª entrega (mínimo de dois packs); o pack único de 1 mês não renova. Podes também apenas suspender.</p>' }
 };
 function openLegal(topic){
   var data = LEGAL[topic]; if(!data){ return; }
