@@ -1007,8 +1007,8 @@ var state = {
 };
 var PLANOS = [
   {id:"1",  label:"1 mês",     meses:1,  nota:"Um pack único, sem renovação nem compromisso", badge:"Pack único", modes:["mim"]},
-  {id:"3",  label:"3 meses",   meses:3,  nota:"A dose certa para criar hábito", badge:"", modes:["mim","oferta"]},
-  {id:"6",  label:"6 meses",   meses:6,  nota:"A experiência completa", badge:"Mais popular", modes:["mim","oferta"]},
+  {id:"3",  label:"3 meses",   meses:3,  nota:"A dose certa para criar hábito", badge:"", modes:["oferta"]},
+  {id:"6",  label:"6 meses",   meses:6,  nota:"A experiência completa", badge:"Mais popular", modes:["oferta"]},
   {id:"12", label:"12 meses",  meses:12, nota:"Um ano inteiro de descobertas", badge:"Melhor oferta", modes:["oferta"]},
   {id:"rec",label:"Recorrente",meses:0,  nota:"Todos os meses. Começas com 2 packs, depois cancelas quando quiseres", badge:"1.º mês a -20%", modes:["mim"]}
 ];
@@ -1061,10 +1061,10 @@ function setMode(m){
   state.mode = m;
   document.getElementById("mode-mim").setAttribute("aria-pressed", m==="mim");
   document.getElementById("mode-oferta").setAttribute("aria-pressed", m==="oferta");
-  // garantir que o plano atual e valido para o modo; senao, escolher o primeiro valido
+  // garantir que o plano atual e valido para o modo; senao, escolher um default sensato
   var atual = planoById(state.planoId);
   if(!atual.modes || atual.modes.indexOf(m)<0){
-    for(var i=0;i<PLANOS.length;i++){ if(PLANOS[i].modes.indexOf(m)>=0){ state.planoId=PLANOS[i].id; break; } }
+    state.planoId = (m==="mim") ? "rec" : "6"; // proprio: recorrente; oferta: 6 meses (mais popular)
   }
   document.getElementById("giftField").classList.toggle("show", m==="oferta");
   var pv = document.getElementById("view-planos");
