@@ -1,7 +1,7 @@
-# óióWine — protótipo de comércio eletrónico
+# óióWine · protótipo de comércio eletrónico
 
 Protótipo académico de um serviço de subscrição mensal de vinho português com
-curadoria surpresa. Desenvolvido no âmbito de um projeto do **ISCAP — Instituto
+curadoria surpresa. Desenvolvido no âmbito de um projeto do **ISCAP, Instituto
 Superior de Contabilidade e Administração do Porto**.
 
 > ⚠️ **Trabalho académico.** Este site é uma demonstração. **Não há pagamentos

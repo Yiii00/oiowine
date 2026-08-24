@@ -694,7 +694,7 @@
       <div class="grid-3">
         <div class="vp"><div class="n">01</div><h3>Curadoria de confiança</h3><p>Escolhemos por ti. Cada pack é uma seleção pensada, não uma prateleira onde te perdes entre rótulos.</p></div>
         <div class="vp"><div class="n">02</div><h3>Aprender a cada gole</h3><p>O folheto de prova conta a história da região e ensina-te a provar, sem pretensão nem palavras difíceis.</p></div>
-        <div class="vp"><div class="n">03</div><h3>No teu ritmo</h3><p>Um pack único para experimentar, uma oferta para alguém, ou a subscrição mensal — começas com dois packs e cancelas depois quando quiseres, num clique.</p></div>
+        <div class="vp"><div class="n">03</div><h3>No teu ritmo</h3><p>Um pack único para experimentar, uma oferta para alguém, ou a subscrição mensal. Começas com dois packs e cancelas depois quando quiseres, num clique.</p></div>
       </div>
     </div></section>
 
@@ -866,7 +866,7 @@
 
           <div class="gift-recipient" id="giftRecipient" hidden>
             <h3 class="recipient-title">Para quem recebe a oferta</h3>
-            <p class="muted" style="font-size:.9rem;margin:.2rem 0 1rem">A caixa segue todos os meses para esta morada, com a tua dedicatória lá dentro — para que se lembre de ti a cada pack.</p>
+            <p class="muted" style="font-size:.9rem;margin:.2rem 0 1rem">A caixa segue todos os meses para esta morada, com a tua dedicatória lá dentro, para que se lembre de ti a cada pack.</p>
             <div class="form-grid">
               <div class="full"><label for="g-nome">Nome de quem recebe</label><input class="inp" id="g-nome" type="text" placeholder="Nome da pessoa presenteada"></div>
               <div class="full"><label for="g-morada">Morada de entrega</label><input class="inp" id="g-morada" type="text" placeholder="Rua, número, andar"></div>
@@ -1348,7 +1348,7 @@ function finalizar(){
     if(ceb){ ceb.textContent = "Oferta confirmada"; }
     if(ctt){ ctt.textContent = "A tua oferta está a caminho"; }
     if(cld){ cld.innerHTML = "Enviámos-te a confirmação. A primeira caixa segue para <b>"+ (destinatario||"a pessoa que escolheste") +"</b> nos próximos dias, com a tua dedicatória lá dentro."; }
-    if(cnx){ cnx.textContent = "Não ficas com nenhuma subscrição — é uma oferta única. Podes acompanhar as expedições e alterar a morada de "+ quem +" na tua conta."; }
+    if(cnx){ cnx.textContent = "Não ficas com nenhuma subscrição: é uma oferta única. Podes acompanhar as expedições e alterar a morada de "+ quem +" na tua conta."; }
   } else {
     if(ceb){ ceb.textContent = "Subscrição confirmada"; }
     if(ctt){ ctt.textContent = "Bem-vinda à óióWine"; }
@@ -1409,8 +1409,8 @@ function renderConta(){
     '<div class="sum-row"><span>Nº da '+ (g?"oferta":"subscrição") +'</span><span><b>'+ s.numero +'</b></span></div>'+
     '<div class="sum-row"><span>Plano</span><span>'+ s.plano + (s.recorrente?" (renovação mensal)":"") +'</span></div>'+
     (s.periodicidade ? '<div class="sum-row"><span>Entregas</span><span>'+ s.periodicidade +'</span></div>' : '')+
-    (s.oferta ? '<div class="sum-row"><span>Oferta para</span><span>'+ (escTxt(s.destinatario) || "—") +'</span></div>' : '')+
-    '<div class="sum-row"><span>Próxima expedição</span><span>'+ (s.estado==="ativa" ? proximaExpedicao() : (s.estado==="suspensa" ? "Em pausa" : "—")) +'</span></div>'+
+    (s.oferta ? '<div class="sum-row"><span>Oferta para</span><span>'+ (escTxt(s.destinatario) || "por indicar") +'</span></div>' : '')+
+    '<div class="sum-row"><span>Próxima expedição</span><span>'+ (s.estado==="ativa" ? proximaExpedicao() : (s.estado==="suspensa" ? "Em pausa" : "Sem expedições")) +'</span></div>'+
   '</div>';
 
   // 2. suspender apresentado ANTES de cancelar, como alternativa de menor custo
@@ -1495,11 +1495,11 @@ var LEGAL = {
     '<p>Tratamos os teus dados apenas para o estritamente necessário à execução da subscrição: entrega, faturação, comunicação sobre o serviço e cumprimento de obrigações legais. O consentimento para marketing é recolhido em separado e é opcional.</p>'+
     '<p><b>Os teus direitos.</b> Tens direito de <b>acesso</b>, <b>retificação</b>, <b>apagamento</b>, <b>limitação do tratamento</b>, <b>portabilidade</b> e <b>oposição</b> ao tratamento dos teus dados pessoais.</p>'+
     '<p><b>Como os exercer.</b> Escreve para <b>privacidade@oiowine.pt</b>. Respondemos no prazo legal. Tens também o direito de reclamar junto da CNPD.</p>'+
-    '<p class="muted" style="font-size:.82rem">Protótipo académico — não há tratamento real de dados nem envio de comunicações.</p>' },
+    '<p class="muted" style="font-size:.82rem">Protótipo académico: não há tratamento real de dados nem envio de comunicações.</p>' },
   envios: { t:"Envios, devoluções e livre resolução", h:
     '<p>Portes incluídos para Portugal continental. As expedições seguem a periodicidade escolhida na subscrição.</p>'+
     '<p><b>Direito de livre resolução (14 dias).</b> Tens o direito de resolver o contrato no prazo de <b>14 dias</b> a contar da receção, sem necessidade de indicar qualquer motivo.</p>'+
-    '<p><b>Exceção para bens perecíveis.</b> Nos termos do Decreto-Lei n.º 24/2014, o direito de livre resolução <b>não é aplicável</b> a bens perecíveis nem a bens selados que, por razões de higiene e segurança alimentar, não possam ser devolvidos depois de abertos — é o caso das garrafas abertas e do aperitivo. Packs por abrir e ainda selados podem ser devolvidos dentro do prazo.</p>' },
+    '<p><b>Exceção para bens perecíveis.</b> Nos termos do Decreto-Lei n.º 24/2014, o direito de livre resolução <b>não é aplicável</b> a bens perecíveis nem a bens selados que, por razões de higiene e segurança alimentar, não possam ser devolvidos depois de abertos, como é o caso das garrafas abertas e do aperitivo. Packs por abrir e ainda selados podem ser devolvidos dentro do prazo.</p>' },
   termos: { t:"Termos e condições", h:
     '<p>A óióWine é uma subscrição mensal de packs de vinho português com curadoria. Ao subscrever, aceitas receber os packs segundo o plano e a periodicidade escolhidos, com pagamento por pack.</p>'+
     '<p>A subscrição recorrente tem um compromisso mínimo de dois packs; a partir da 2.ª entrega, podes suspender ou cancelar a qualquer momento, sem penalização, na tua conta. O pack único (1 mês) não renova. A venda é proibida a menores de 18 anos.</p>'+
@@ -1512,7 +1512,7 @@ var LEGAL = {
     '<p><b>Venda proibida a menores de 18 anos.</b> Confirmamos a maioridade antes de concluir qualquer subscrição.</p>' },
   faq: { t:"Perguntas frequentes", h:
     '<p><b>O que recebo?</b> Dois vinhos portugueses de curadoria, um aperitivo regional e o folheto «Narrativas que Embebedam», todos os meses.</p>'+
-    '<p><b>Sei que vinhos vou receber?</b> Não — a surpresa faz parte. Sabes exatamente o que recebes em natureza, mas não a identidade dos vinhos.</p>'+
+    '<p><b>Sei que vinhos vou receber?</b> Não. A surpresa faz parte. Sabes exatamente o que recebes em natureza, mas não a identidade dos vinhos.</p>'+
     '<p><b>Posso cancelar?</b> Sim, sem burocracia, na tua conta. A subscrição recorrente cancela-se a partir da 2.ª entrega (mínimo de dois packs); o pack único de 1 mês não renova. Podes também apenas suspender.</p>' }
 };
 function openLegal(topic){
