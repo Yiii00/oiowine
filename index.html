@@ -1692,13 +1692,23 @@ document.addEventListener("DOMContentLoaded", function(){
           if(safety){ clearTimeout(safety); }
           safety = setTimeout(reveal, 1200); // seguranca: nunca ficar oculto
         }
-        hv.addEventListener("playing", reveal);
-        hv.addEventListener("canplay", reveal);
-        hv.addEventListener("ended", function(){
-          hv.classList.add("swapping"); // esbate antes de trocar
+        // Um video que falhe a carregar nunca dispara "ended". Sem tratar o
+        // erro, a cadeia morria no primeiro ficheiro problematico e nao voltava.
+        var falhas = 0;
+        function seguinte(porErro){
+          if(porErro){
+            falhas++;
+            // se todos falharem, para e deixa ficar o poster
+            if(falhas >= playlist.length){ reveal(); return; }
+          }
+          if(!porErro) hv.classList.add("swapping"); // esbate antes de trocar
           i = (i + 1) % playlist.length;
-          setTimeout(function(){ load(i); }, 450);
-        });
+          setTimeout(function(){ load(i); }, porErro ? 0 : 450);
+        }
+        hv.addEventListener("playing", function(){ falhas = 0; reveal(); });
+        hv.addEventListener("canplay", reveal);
+        hv.addEventListener("ended", function(){ seguinte(false); });
+        hv.addEventListener("error", function(){ seguinte(true); });
         load(i);
       }
     }
