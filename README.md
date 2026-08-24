@@ -1,4 +1,4 @@
-# óióWine · protótipo de comércio eletrónico
+# ÓióWine · protótipo de comércio eletrónico
 
 Protótipo académico de um serviço de subscrição mensal de vinho português com
 curadoria surpresa. Desenvolvido no âmbito de um projeto do **ISCAP, Instituto
@@ -11,7 +11,7 @@ Superior de Contabilidade e Administração do Porto**.
 
 ## O que é
 
-A óióWine assume, por quem subscreve, a decisão de escolher vinho. Em vez de um
+A ÓióWine assume, por quem subscreve, a decisão de escolher vinho. Em vez de um
 catálogo, o percurso conduz a visitante por sete vistas sequenciais até à
 subscrição de um pack mensal (dois vinhos, um aperitivo regional e o folheto de
 prova «Narrativas que Embebedam»).
