@@ -1,0 +1,1353 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ÓióWine · defesa de projeto</title>
+<style>
+/* ====================================================================
+   FONTES — embebidas em base64, zero pedidos de rede
+   ==================================================================== */
+@font-face{font-family:"Playfair Display";font-weight:400;font-style:normal;font-display:block;
+  src:url({{FONT:playfair-400}}) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:500;font-style:normal;font-display:block;
+  src:url({{FONT:playfair-500}}) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:700;font-style:normal;font-display:block;
+  src:url({{FONT:playfair-700}}) format("woff2")}
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;
+  src:url({{FONT:inter-400}}) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-style:normal;font-display:block;
+  src:url({{FONT:inter-500}}) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;font-style:normal;font-display:block;
+  src:url({{FONT:inter-600}}) format("woff2")}
+
+/* ====================================================================
+   SISTEMA DE DESIGN — ponto 3 do briefing
+   ==================================================================== */
+:root{
+  /* paleta da norma do relatorio (o laranja e #BC642F, nao o do Anexo L) */
+  --vermelho:#A13532;
+  --laranja:#BC642F;
+  --marrom:#615C48;
+  --azul:#33474E;
+  --oliva:#9F9772;
+  --branco:#FFFFFF;
+
+  /* variantes tonais — existem so onde a paleta base nao passa AA.
+     Cada uma mantem o matiz da cor de origem. Ver NOTAS_ORADOR.md */
+  --marrom-fundo:#3E3B2E;      /* fundo do ecra 3: marrom 12% mais escuro */
+  --laranja-vivo:#CC6D33;      /* laranja 4% mais claro, so no numero do ecra 3 (3,10:1) */
+  --oliva-texto:#7B7454;       /* oliva legivel sobre branco (4,70:1) */
+  --marrom-escuro:#474334;     /* texto sobre fundo oliva (3,37:1) */
+  --vermelho-escuro:#7C2926;   /* alerta sobre fundo oliva (3,24:1) */
+  --laranja-claro:#D8814D;     /* laranja sobre fundo azul (3,33:1) */
+  --laranja-rotulo:#B05D2C;    /* laranja para texto pequeno sobre branco (4,72:1) */
+
+  --tipo-numero:clamp(8rem,30vw,26rem);
+  --tipo-titulo:clamp(2.5rem,5vw,4.5rem);
+  --tipo-corpo:clamp(1.1rem,1.6vw,1.5rem);
+  --tipo-legenda:0.75rem;
+
+  --curva:cubic-bezier(0.16,1,0.3,1);
+  --margem:clamp(3rem,7vw,9rem);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000}
+body{font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;cursor:none}
+body.rato{cursor:default}
+
+/* ---------- ecras -------------------------------------------------- */
+.palco{position:fixed;inset:0;overflow:hidden}
+.ecra{position:absolute;inset:0;display:none;flex-direction:column;
+  justify-content:center;padding:var(--margem);color:var(--branco);
+  will-change:transform}
+/* durante a transicao ha dois ecras no palco: o que entra cobre o que sai */
+.ecra.activo,.ecra.topo,.ecra.fundo{display:flex}
+.ecra.topo{z-index:3}
+.ecra.fundo{z-index:1}
+.ecra.mover{transition:transform .7s var(--curva)}
+
+.ecra.centrado{align-items:center;text-align:center}
+
+.bg-azul{background:var(--azul)}
+.bg-vermelho{background:var(--vermelho)}
+.bg-marrom{background:var(--marrom)}
+.bg-marrom-fundo{background:var(--marrom-fundo)}
+.bg-oliva{background:var(--oliva);color:var(--marrom-escuro)}
+.bg-branco{background:var(--branco);color:var(--azul)}
+.bg-preto{background:#000}
+
+/* ---------- tipografia ---------------------------------------------
+   A Playfair Display não traz tabela `tnum`: os algarismos são
+   proporcionais por desenho. Pedimos `lnum`, que existe. A Inter tem
+   `tnum` e é onde a tabulação faz efeito — nomeadamente no cronómetro. */
+.numero,.titulo,.tres-palavras span,.resolucao .frase,.mercado .grande,
+.mercado .pequeno,.linha-tempo .marca .ano,.auditoria .depois,.persona h3,
+.numerada .n,.afirmacao,.elo .ordem,#grelha .mini span{
+  font-kerning:normal;
+  font-feature-settings:"kern" 1,"liga" 1,"calt" 1,"lnum" 1;
+  font-variant-numeric:lining-nums}
+
+/* a Inter tabula a sério */
+.rodape,.legenda,.corpo,.autor,.lbl,.auditoria .antes,.barra-linha .val,
+.numerada .t,.fonte,#notas,#crono,#grelha .cap{
+  font-kerning:normal;
+  font-variant-numeric:lining-nums tabular-nums;
+  font-feature-settings:"kern" 1,"tnum" 1,"lnum" 1}
+
+/* espacejamento apertado, graduado pelo corpo: quanto maior a letra,
+   mais fecha. É o que a Playfair pede em corpos de display. */
+.numero,.mercado .grande{letter-spacing:-.035em}
+.mercado .pequeno{letter-spacing:-.03em}
+.titulo,.tres-palavras span,.resolucao .frase{letter-spacing:-.022em}
+.linha-tempo .marca .ano,.auditoria .depois{letter-spacing:-.018em}
+.afirmacao,.persona h3,.numerada .n{letter-spacing:-.01em}
+
+
+.numero{font-family:"Playfair Display",Georgia,serif;font-weight:700;
+  font-size:var(--tipo-numero);line-height:.9;
+  /* os glifos da Playfair descem ~0,23em abaixo da caixa de linha a este
+     line-height; sem esta folga o elemento seguinte sobe para cima do numero */
+  padding-bottom:.28em}
+.numero.largo{font-size:clamp(6rem,23vw,20rem)}
+.titulo{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:var(--tipo-titulo);line-height:1.08;max-width:18ch}
+.titulo.largo{max-width:26ch}
+.corpo{font-family:"Inter",sans-serif;font-weight:400;font-size:var(--tipo-corpo);
+  line-height:1.5;max-width:46ch}
+.legenda{font-family:"Inter",sans-serif;font-weight:500;font-size:var(--tipo-legenda);
+  text-transform:uppercase;letter-spacing:.12em}
+.rodape{font-family:"Inter",sans-serif;font-weight:400;font-size:.95rem;opacity:.7;margin-top:2.2rem}
+/* Elemento que entra logo atrás do anterior, dentro do mesmo passo e sem
+   gastar tecla. O atraso vive no estado .visivel para só valer à entrada:
+   a recuar, sai de imediato. */
+.acompanha.visivel{transition-delay:.5s}
+.autor{font-family:"Inter",sans-serif;font-size:.8rem;opacity:.6;margin-top:.45rem}
+
+/* ---------- revelacao por passos ------------------------------------
+   Dois vocabularios. O texto de display sobe por tras de uma mascara,
+   palavra a palavra. Tudo o resto entra como objecto: sobe e ganha corpo. */
+
+/* objectos: imagens, tabelas, barras, grelhas */
+[data-passo]{opacity:0;transform:translateY(44px) scale(.985);
+  transition:opacity .55s var(--curva),transform .75s var(--curva)}
+[data-passo].visivel{opacity:1;transform:none}
+
+/* texto mascarado: o exterior corta, o interior sobe.
+   A caixa da máscara é mais alta que a linha em cima e em baixo, senão
+   corta acentos (ó, ã) e descidas (q, p, ç) com o texto já em repouso.
+   As margens negativas devolvem o espaço ao fluxo, e a viagem sobe para
+   150% para a palavra continuar escondida numa máscara mais alta. */
+.mv{display:inline-block;overflow:hidden;vertical-align:bottom;
+  padding:.22em 0 .28em;margin:-.22em 0 -.28em}
+.mi{display:inline-block;transform:translateY(150%) scale(.92);
+  transform-origin:50% 100%;
+  transition:transform .78s var(--curva);
+  transition-delay:calc(var(--w,0)*45ms)}
+/* um elemento so com palavras mascaradas nao precisa de esbatimento proprio:
+   o corte da mascara ja e a entrada */
+[data-passo].mascarado,[data-passo].mov-proprio{opacity:1;transform:none;transition:none}
+.visivel .mi{transform:none}
+.linhas>*{transition-delay:calc(var(--i,0)*80ms)}
+
+/* ---------- logótipo com slogan animado -----------------------------
+   Mesma coreografia do logótipo animado do site: a marca ergue-se e as três
+   palavras da assinatura sobem uma a uma por trás das suas máscaras. As
+   máscaras são posicionadas pelo construtor a partir do viewBox de cada
+   palavra, por isso não há coordenadas copiadas à mão. */
+.lockup{position:relative;width:22%;min-width:280px;
+  aspect-ratio:152.74332/81.35854}
+.lockup.grande{width:34%;min-width:320px}
+.lockup .marca-svg{position:absolute;inset:0;width:100%;height:100%;display:block;
+  opacity:0;transform:translateY(3.4%) scale(.986)}
+.lockup .slogan{position:absolute;inset:0}
+.lockup .mask{position:absolute;overflow:hidden;display:block}
+.lockup .wsvg{display:block;width:100%;height:100%;
+  opacity:0;transform:translateY(142%)}
+
+.ecra.activo .lockup .marca-svg{animation:erguerMarca 1100ms var(--curva) 140ms both}
+/* o atraso de cada palavra vem do construtor, calculado a partir do número
+   de caracteres da palavra anterior — ver `cadencia()` em build.py */
+.ecra.activo .lockup .wsvg{animation:erguerPalavra 1000ms var(--curva) var(--atraso,720ms) both}
+/* ao recuar, o ecrã revelado por trás já traz o logótipo montado */
+.ecra.fundo .lockup .marca-svg,.ecra.fundo .lockup .wsvg{
+  opacity:1;transform:none;animation:none}
+
+@keyframes erguerMarca{
+  from{opacity:0;transform:translateY(3.4%) scale(.986)}
+  to{opacity:1;transform:none}}
+@keyframes erguerPalavra{
+  0%{transform:translateY(142%);opacity:0}
+  55%{opacity:1}
+  100%{transform:translateY(0);opacity:1}}
+
+/* ---------- o projeto -----------------------------------------------
+   O que é e de que é feito o trabalho, antes de qualquer número. Quatro
+   colunas numeradas, na mesma família do índice da revisão da literatura. */
+.proposta{width:100%;max-width:1500px;margin:0 auto}
+.proposta .titulo{max-width:22ch;margin-bottom:clamp(2rem,4vw,3.4rem)}
+.metodo{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(1.2rem,3vw,3rem);--intervalo:.45s;
+  border-top:1px solid rgba(51,71,78,.2);padding-top:clamp(1rem,2vw,1.6rem)}
+.metodo li{opacity:0;transform:translateY(28px);
+  transition:opacity .55s var(--curva) calc(var(--seq,0)*var(--intervalo)),
+             transform .7s var(--curva) calc(var(--seq,0)*var(--intervalo))}
+.metodo.visivel li{opacity:1;transform:none}
+.metodo .ordem{display:block;font-family:"Playfair Display",Georgia,serif;
+  font-size:clamp(1rem,1.5vw,1.35rem);color:var(--oliva-texto);margin-bottom:.5rem}
+.metodo .que{display:block;font-family:"Playfair Display",Georgia,serif;
+  font-weight:500;font-size:clamp(1.3rem,2.1vw,1.95rem);letter-spacing:-.015em;
+  line-height:1.15}
+.metodo .det{display:block;margin-top:.45rem;font-family:"Inter",sans-serif;
+  font-size:clamp(.85rem,1.1vw,1rem);color:var(--oliva-texto);line-height:1.4}
+
+/* ---------- revisão da literatura --------------------------
+   Índice editorial: uma pauta de cinco entradas numeradas, cada uma com a
+   sua régua a desenhar-se. O quinto elo não é de ninguém e por isso rompe
+   a pauta — régua a laranja, corpo maior, sem autor. */
+.literatura{width:100%;max-width:1560px;margin:0 auto}
+.lit-eyebrow{color:var(--oliva-texto);margin-bottom:clamp(1rem,2.2vw,2rem)}
+.cadeia{list-style:none}
+.elo{display:grid;
+  grid-template-columns:4.5rem minmax(0,1fr) auto;
+  grid-template-areas:"risca risca risca" "ordem dito fonte";
+  align-items:baseline;
+  column-gap:clamp(1.4rem,3vw,3.2rem);
+  padding-bottom:clamp(.85rem,1.7vw,1.5rem)}
+/* Os elos 01–04 entram em cascata, sozinhos, num único passo: `--seq` dá a
+   ordem e o atraso sai de INTERVALO. O elo 05 é o contributo próprio e esse
+   sim espera por tecla. */
+.elo{--intervalo:.7s}
+.elo .risca{grid-area:risca;height:1px;background:rgba(51,71,78,.2);
+  margin-bottom:clamp(.85rem,1.7vw,1.5rem);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .6s var(--curva) calc(var(--seq,0)*var(--intervalo))}
+.elo.visivel .risca{transform:none}
+.elo .ordem{grid-area:ordem;font-family:"Playfair Display",Georgia,serif;
+  font-weight:400;font-size:clamp(1.1rem,1.7vw,1.5rem);color:var(--oliva-texto)}
+.elo .afirmacao{grid-area:dito;font-family:"Playfair Display",Georgia,serif;
+  font-weight:400;font-size:clamp(1.35rem,2.3vw,2.15rem);line-height:1.2}
+.elo .fonte{grid-area:fonte;font-family:"Inter",sans-serif;font-weight:500;
+  font-size:var(--tipo-legenda);text-transform:uppercase;letter-spacing:.12em;
+  color:var(--oliva-texto);white-space:nowrap;align-self:baseline}
+.elo .ordem,.elo .fonte{opacity:0;
+  transition:opacity .5s var(--curva) calc(var(--seq,0)*var(--intervalo) + .18s)}
+.elo .afirmacao .mi{transition-delay:calc(var(--seq,0)*var(--intervalo) + .08s)}
+.elo.visivel .ordem,.elo.visivel .fonte{opacity:1}
+.elo.proprio .risca{background:var(--laranja);height:2px}
+.elo.proprio .ordem{color:var(--laranja)}
+.elo.proprio .afirmacao{font-weight:500;font-size:clamp(1.6rem,2.8vw,2.6rem)}
+.elo.proprio .fonte{color:var(--laranja-rotulo);font-weight:600}
+
+.marca-contributo{display:inline-block;margin-top:.5rem;color:var(--laranja-rotulo);
+  font-family:"Inter",sans-serif;font-weight:600;font-size:var(--tipo-legenda);
+  text-transform:uppercase;letter-spacing:.12em}
+
+/* ---------- a tensão ---------------------------------------
+   Mesma linguagem editorial do ecrã 6: sobrancelha, régua, fonte em Inter
+   maiúsculas. As duas afirmações entram de lados opostos, como o ponto 4.3
+   pede, mas agora em Playfair e com espacejamento fechado. */
+.tensao{width:100%;max-width:1500px;margin:0 auto}
+.confronto{display:grid;grid-template-columns:1fr 1px 1fr;
+  column-gap:clamp(2rem,5vw,5rem);align-items:start;
+  padding-top:clamp(1rem,2vw,1.8rem);
+  border-top:1px solid rgba(51,71,78,.2)}
+.confronto .risca{background:rgba(51,71,78,.16);align-self:stretch;
+  transform:scaleY(0);transform-origin:top center;
+  transition:transform .65s var(--curva) .12s}
+.confronto.visivel .risca{transform:none}
+.confronto .lado{opacity:0;
+  transition:opacity .55s var(--curva),transform .7s var(--curva)}
+.confronto .lado.esq{transform:translateX(-48px)}
+.confronto .lado.dir{transform:translateX(48px)}
+.confronto.visivel .lado{opacity:1;transform:none}
+.confronto .tese{font-family:"Playfair Display",Georgia,serif;font-weight:400;
+  font-size:clamp(1.4rem,2.35vw,2.2rem);line-height:1.22;letter-spacing:-.018em}
+.confronto .fonte{display:block;margin-top:1rem;font-family:"Inter",sans-serif;
+  font-weight:500;font-size:var(--tipo-legenda);text-transform:uppercase;
+  letter-spacing:.12em;color:var(--oliva-texto)}
+
+.resolucao{margin-top:clamp(2.5rem,5vw,4.5rem);text-align:center}
+.resolucao .corte{display:block;height:2px;background:var(--laranja);
+  width:min(420px,32%);margin:0 auto clamp(1.4rem,2.8vw,2.4rem);
+  transform:scaleX(0);transition:transform .65s var(--curva)}
+.resolucao.visivel .corte{transform:none}
+.resolucao .frase{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  color:var(--laranja);font-size:clamp(2rem,3.8vw,3.4rem);line-height:1.12}
+.resolucao .marca-contributo{margin-top:1.1rem}
+
+/* ---------- o pack -------------------------------------------
+   A imagem tem 2400 px, acima do limiar do ponto 7, por isso sangra a três
+   lados — cima, baixo e esquerda — ficando só a margem da direita, onde a
+   composição já escurece. A largura de 108% dá folga para os 4% de deriva
+   sem descobrir nenhum bordo. */
+/* `.ecra>*` impõe position:relative com a mesma especificidade e vem
+   depois; daí o seletor filho, para o sangramento ganhar */
+.ecra>.pack{position:absolute;top:0;bottom:0;left:0;right:var(--margem);
+  overflow:hidden;z-index:2}
+.pack img{width:108%;height:100%;object-fit:cover;object-position:50% 48%;
+  display:block}
+/* entra por esbatimento: o movimento desta imagem é a deriva, não um salto */
+[data-passo].pack{opacity:0;transform:none;
+  transition:opacity .75s var(--curva)}
+[data-passo].pack.visivel{opacity:1}
+.ecra.activo .pack img{animation:deriva 4s var(--curva) forwards}
+@keyframes deriva{from{transform:translateX(0)}to{transform:translateX(-4%)}}
+
+/* ---------- a marca -----------------------------------------
+   O slogan do logótipo já sobe por trás de máscaras neste mesmo ecrã. Os três
+   critérios do Keller têm de entrar de outra maneira, senão é o mesmo gesto
+   duas vezes: aqui as letras **convergem** — abrem espacejadas e fecham para
+   a posição — e uma régua desenha-se por baixo. */
+.tres-palavras{display:flex;gap:clamp(1.5rem,5vw,5rem);justify-content:center;
+  margin-top:clamp(2rem,5vw,4rem);--intervalo:.5s}
+.tres-palavras span{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:clamp(2rem,4.5vw,4rem);display:block;position:relative;
+  padding-bottom:.32em;
+  opacity:0;letter-spacing:.3em;
+  transition:opacity .55s var(--curva) calc(var(--seq,0)*var(--intervalo)),
+             letter-spacing .95s var(--curva) calc(var(--seq,0)*var(--intervalo))}
+.tres-palavras span.visivel{opacity:1;letter-spacing:-.022em}
+.tres-palavras span::after{content:"";position:absolute;left:0;right:0;bottom:0;
+  height:1px;background:currentColor;opacity:.4;
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .75s var(--curva)
+             calc(var(--seq,0)*var(--intervalo) + .12s)}
+.tres-palavras span.visivel::after{transform:none}
+/* o nome do Keller fecha o grupo, depois das três palavras assentarem */
+.rodape.apos-palavras.visivel{transition-delay:calc(3*.5s + .15s)}
+.tres-palavras .p1,.tres-palavras .p2{color:var(--oliva-texto)}
+/* a terceira é a que faz o argumento: muda de cor e a régua ganha peso */
+.tres-palavras .p3{color:var(--vermelho)}
+.tres-palavras .p3::after{height:2px;opacity:.65}
+
+/* ---------- personas -------------------------------------- */
+.personas{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,4.5rem);
+  width:100%;max-width:1180px;margin:0 auto}
+.persona figure{margin:0}
+.persona img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;
+  border-radius:2px;filter:saturate(.92)}
+/* enquadramentos diferentes, para as duas nao se lerem como a mesma pessoa */
+.persona.sofia img{object-position:50% 26%}
+.persona.marta img{object-position:50% 52%;filter:saturate(.84) contrast(1.03)}
+.persona h3{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:clamp(1.3rem,2vw,1.8rem);margin-top:1.1rem}
+.persona p{font-family:"Inter",sans-serif;font-size:clamp(.9rem,1.15vw,1.05rem);
+  line-height:1.55;opacity:.85}
+.persona p.barreira{opacity:1;margin-top:.5rem}
+.nota-ia{display:block;text-align:center;margin-top:clamp(1.5rem,3vw,2.5rem);
+  font-family:"Inter",sans-serif;font-size:.75rem;opacity:.6;font-style:italic}
+
+/* ---------- a amostra --------------------------------------- */
+.alerta{color:var(--vermelho-escuro);font-family:"Inter",sans-serif;font-weight:600;
+  font-size:clamp(1.4rem,2.6vw,2.2rem);margin-top:1.5rem}
+
+/* ---------- o resultado ------------------------------------- */
+.duas-palavras{display:flex;gap:clamp(2rem,6vw,6rem);margin-top:1.6rem;align-items:flex-start}
+.duas-palavras .col{position:relative}
+.duas-palavras .lbl{font-family:"Inter",sans-serif;font-weight:600;
+  font-size:clamp(.85rem,1.3vw,1.1rem);text-transform:uppercase;letter-spacing:.14em}
+.seta-cima{display:block;margin-top:.7rem;color:var(--laranja-claro);
+  font-size:clamp(1.6rem,3vw,2.4rem);line-height:1}
+
+/* ---------- limitações ------------------------------------ */
+.numerada{display:flex;align-items:baseline;gap:1.2rem;margin-top:1.1rem}
+.numerada .n{font-family:"Playfair Display",Georgia,serif;font-weight:400;
+  font-size:clamp(1.2rem,2vw,1.7rem);opacity:.55;min-width:2.4ch}
+.numerada .t{font-family:"Inter",sans-serif;font-size:clamp(1.1rem,1.9vw,1.6rem)}
+
+/* ---------- mercado e meta -------------------------------- */
+.mercado{text-align:center}
+.mercado .grande{color:var(--oliva-texto);font-family:"Playfair Display",Georgia,serif;
+  font-weight:700;font-size:clamp(6rem,16vw,14rem);line-height:.85}
+.mercado .pequeno{color:var(--vermelho);font-family:"Playfair Display",Georgia,serif;
+  font-weight:700;font-size:clamp(2.4rem,5.5vw,5rem);line-height:1;margin-top:1.2rem}
+.mercado .lbl{font-family:"Inter",sans-serif;font-size:var(--tipo-legenda);
+  text-transform:uppercase;letter-spacing:.12em;opacity:.75;margin-top:.4rem}
+
+/* ---------- o vídeo ----------------------------------------- */
+.ecra-video{padding:0}
+.ecra-video video{width:100%;height:100%;object-fit:contain;background:#000;display:block}
+
+/* ---------- calendário ------------------------------------ */
+.linha-tempo{position:relative;width:100%;max-width:1280px;margin:0 auto}
+.linha-tempo .barra{height:3px;background:var(--azul);transform-origin:left center;
+  transform:scaleX(0);transition:transform .8s var(--curva)}
+.linha-tempo.visivel .barra{transform:scaleX(1)}
+.linha-tempo .marcas{display:flex;justify-content:space-between;margin-top:1.2rem}
+.linha-tempo .marca{text-align:left}
+.linha-tempo .marca .ano{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:clamp(2rem,3.6vw,3.2rem)}
+.linha-tempo .marca .o-que{font-family:"Inter",sans-serif;font-size:1.05rem;opacity:.7;
+  text-transform:uppercase;letter-spacing:.12em;margin-top:.2rem}
+
+/* ---------- auditoria ---------------------------------------- */
+.auditoria{width:100%;max-width:1080px;margin:0 auto;border-collapse:collapse}
+.auditoria th,.auditoria td{padding:1.1rem 1rem;text-align:left;
+  border-bottom:1px solid rgba(51,71,78,.15)}
+.auditoria th{font-family:"Inter",sans-serif;font-weight:500;font-size:var(--tipo-legenda);
+  text-transform:uppercase;letter-spacing:.12em;opacity:.6}
+.auditoria .antes{color:var(--oliva-texto);font-family:"Inter",sans-serif;
+  font-size:clamp(1.1rem,1.8vw,1.5rem)}
+.auditoria .seta{text-align:center;opacity:.4;width:3rem}
+.auditoria .depois{color:var(--vermelho);font-family:"Playfair Display",Georgia,serif;
+  font-weight:500;font-size:clamp(1.5rem,2.6vw,2.2rem)}
+.auditoria tr{opacity:0;transform:translateY(16px);
+  transition:opacity .5s var(--curva),transform .5s var(--curva)}
+.auditoria tr.visivel,.auditoria tr.cabeca{opacity:1;transform:none}
+
+/* ---------- retenção -------------------------------------- */
+.barras{width:100%;max-width:1100px;margin:2.5rem 0 0}
+.barra-linha{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.1rem}
+.barra-linha .val{font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:clamp(1.3rem,2.2vw,1.9rem);min-width:4.5ch}
+.barra-linha .tubo{flex:1;display:block;height:clamp(30px,4vw,54px);
+  background:rgba(255,255,255,.22)}
+/* .cheio e um span: sem display:block a largura e a altura nao se aplicam */
+.barra-linha .cheio{display:block;width:100%;height:100%;
+  background:var(--branco);transform-origin:left center;
+  transform:scaleX(0);transition:transform .9s var(--curva)}
+.barra-linha.visivel .cheio{transform:scaleX(var(--f,1))}
+.barra-rotulo{font-family:"Inter",sans-serif;font-size:var(--tipo-legenda);
+  text-transform:uppercase;letter-spacing:.12em;opacity:.8;margin-top:1rem}
+
+/* O padrao de azulejaria nao entra na apresentacao: nunca pode assentar sob
+   texto (ponto 3.1) e a transicao passou a fazer-se pelo movimento dos
+   proprios objectos, nao por um efeito sobreposto. */
+.ecra>*{position:relative;z-index:2}
+
+/* ====================================================================
+   PAINEIS DO ORADOR
+   ==================================================================== */
+.painel{position:fixed;z-index:100;background:rgba(18,20,20,.96);color:#fff;
+  font-family:"Inter",sans-serif;border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(6px)}
+.painel[hidden]{display:none!important}
+
+/* notas do orador */
+#notas{left:0;right:0;bottom:0;padding:1.3rem 1.8rem 1.5rem;
+  display:grid;grid-template-columns:1fr 260px;gap:2rem;max-height:42vh}
+#notas .falado{font-size:1.02rem;line-height:1.55;overflow-y:auto}
+#notas .lado{border-left:1px solid rgba(255,255,255,.14);padding-left:1.5rem;
+  display:flex;flex-direction:column;gap:.7rem}
+#notas .relogio{font-size:1.9rem;font-weight:600;font-variant-numeric:tabular-nums}
+#notas .desvio{font-size:1.05rem;font-weight:600;font-variant-numeric:tabular-nums}
+#notas .desvio.dentro{color:#7BD88F}
+#notas .desvio.fora{color:#BC642F}
+#notas .meta{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;opacity:.55}
+#notas .seguinte{font-size:.86rem;opacity:.7;line-height:1.4;margin-top:auto}
+
+/* cronometro isolado */
+#crono{right:1.4rem;top:1.4rem;padding:.9rem 1.3rem;border-radius:4px;
+  font-variant-numeric:tabular-nums;text-align:right}
+#crono .t{font-size:2rem;font-weight:600;line-height:1}
+#crono .d{font-size:.95rem;font-weight:600;margin-top:.3rem}
+#crono .d.dentro{color:#7BD88F}
+#crono .d.fora{color:#BC642F}
+
+/* grelha de navegacao */
+#grelha{inset:0;padding:clamp(2rem,5vw,4rem);overflow-y:auto;
+  background:rgba(12,14,14,.985)}
+#grelha .cartoes{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:1rem;max-width:1500px;margin:0 auto}
+#grelha button{all:unset;cursor:pointer;border-radius:4px;overflow:hidden;
+  border:2px solid transparent;transition:border-color .2s}
+#grelha button:hover,#grelha button:focus-visible{border-color:var(--laranja)}
+#grelha button.actual{border-color:#fff}
+#grelha .mini{aspect-ratio:16/9;display:flex;align-items:flex-end;padding:.7rem}
+#grelha .mini span{font-family:"Playfair Display",Georgia,serif;font-size:1.5rem;
+  font-weight:500;opacity:.85}
+#grelha .cap{padding:.55rem .7rem;font-size:.8rem;background:rgba(255,255,255,.06);
+  display:flex;justify-content:space-between;gap:.5rem}
+#grelha .cap .dur{opacity:.5;font-variant-numeric:tabular-nums}
+#grelha h2{font-family:"Inter",sans-serif;font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.14em;opacity:.5;margin-bottom:1.3rem;text-align:center}
+
+/* barra de progresso discreta */
+#progresso{position:fixed;left:0;bottom:0;height:2px;background:rgba(255,255,255,.5);
+  z-index:60;transition:width .3s var(--curva);pointer-events:none}
+.ecra.bg-branco~#progresso,body.claro #progresso{background:rgba(51,71,78,.35)}
+
+/* ajuda */
+#ajuda{left:1.4rem;bottom:1.4rem;padding:.5rem .8rem;border-radius:4px;
+  font-size:.72rem;opacity:.35;letter-spacing:.06em;z-index:90}
+
+/* ====================================================================
+   MOVIMENTO REDUZIDO — ponto 4.3
+   ==================================================================== */
+/* Ao recuar, o ecrã revelado repõe-se de imediato: o ponto 4.1 diz que voltar
+   atrás não obriga a repetir a animação toda, e com a cascata do ecrã 6 isso
+   passaria a custar quase três segundos. */
+.ecra.reposicao *{transition-duration:0s!important;transition-delay:0s!important}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.15s!important;animation-delay:0s!important;
+    transition-duration:.15s!important;transition-delay:0s!important}
+  [data-passo]{transform:none!important}
+  .mi{transform:none!important}
+  .confronto .lado{transform:none!important}
+  .ecra.mover{transition:none!important}
+  .lockup .marca-svg,.lockup .wsvg{animation:none!important;
+    opacity:1!important;transform:none!important}
+  .ecra.activo .pack img{animation:none!important;transform:translateX(-2%)!important}
+  .linha-tempo .barra,.elo .seta,.barra-linha .cheio{transition-duration:.15s!important}
+}
+
+/* ====================================================================
+   DEGRADACAO ATE 1280x720
+   ==================================================================== */
+@media (max-height:800px){
+  :root{--margem:clamp(2rem,5vw,4rem);--tipo-numero:clamp(6rem,17vw,12rem)}
+  #notas{max-height:38vh;padding:1rem 1.4rem 1.1rem}
+  #notas .falado{font-size:.94rem}
+  .personas{max-width:820px}
+}
+@media (max-width:1400px){
+  .elo .caixa p{font-size:1.05rem}
+}
+</style>
+</head>
+<body>
+<div class="palco" id="palco">
+
+<!-- ECRÃ 1 · Abertura ============================================== -->
+<section class="ecra centrado bg-azul" data-passos="1">
+  <div class="lockup" role="img" aria-label="ÓióWine · Sip Surprise Shine">{{LOCKUP}}</div>
+</section>
+
+<!-- ECRÃ 2 · O projeto ============================================ -->
+<section class="ecra bg-branco" data-passos="2">
+  <div class="proposta">
+    <p class="legenda lit-eyebrow">O projeto</p>
+    <h2 class="titulo largo" data-passo="1">A ÓióWine é uma subscrição mensal de vinho português.</h2>
+    <ol class="metodo mov-proprio" data-passo="2">
+      <li style="--seq:0"><span class="ordem">01</span>
+        <span class="que">Literatura</span><span class="det">revista por pares</span></li>
+      <li style="--seq:1"><span class="ordem">02</span>
+        <span class="que">Questionário</span><span class="det">93 respostas, tratadas em SPSS</span></li>
+      <li style="--seq:2"><span class="ordem">03</span>
+        <span class="que">Contas</span><span class="det">modelo do IAPMEI</span></li>
+      <li style="--seq:3"><span class="ordem">04</span>
+        <span class="que">Protótipo</span><span class="det">site a funcionar</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ECRÃ 3 · O mercado mau ======================================== -->
+<section class="ecra bg-vermelho" data-passos="1">
+  <div class="numero" data-passo="1">89%</div>
+  <p class="rodape acompanha" data-passo="1">Banco de Portugal, Quadros do Setor 2024, CAE 47250.</p>
+</section>
+
+<!-- ECRÃ 3 · A janela ============================================= -->
+<section class="ecra bg-marrom-fundo" data-passos="1">
+  <div class="numero" data-passo="1" style="color:var(--laranja-vivo)">25%</div>
+  <p class="rodape acompanha" data-passo="1">McKinsey, 2024.</p>
+</section>
+
+<!-- ECRÃ 4 · O inimigo ============================================ -->
+<section class="ecra bg-marrom" data-passos="1">
+  <h2 class="titulo largo palavras" data-passo="1" data-frase="O vinho foi desenhado para fazer sentir quem não percebe como um intruso."></h2>
+</section>
+
+<!-- ECRÃ 5 · A pergunta =========================================== -->
+<section class="ecra centrado bg-azul" data-passos="1">
+  <h2 class="titulo" data-passo="1">Como se vende uma coisa que o comprador não pode ver?</h2>
+</section>
+
+<!-- ECRÃ 6 · A cadeia causal ====================================== -->
+<section class="ecra bg-branco" data-passos="2">
+  <div class="literatura">
+    <p class="legenda lit-eyebrow">Revisão da literatura</p>
+    <ol class="cadeia">
+      <li class="elo mascarado" data-passo="1" style="--seq:0">
+        <span class="risca"></span><span class="ordem">01</span>
+        <p class="afirmacao">Quem subscreve não o faz por dinheiro</p>
+        <span class="fonte">Iyengar et al., 2022</span>
+      </li>
+      <li class="elo mascarado" data-passo="1" style="--seq:1">
+        <span class="risca"></span><span class="ordem">02</span>
+        <p class="afirmacao">Numa caixa curada, o valor está no prazer</p>
+        <span class="fonte">Li et al., 2023</span>
+      </li>
+      <li class="elo mascarado" data-passo="1" style="--seq:2">
+        <span class="risca"></span><span class="ordem">03</span>
+        <p class="afirmacao">O prazer faz a ponte da marca à fidelidade</p>
+        <span class="fonte">Ding e Tseng, 2015</span>
+      </li>
+      <li class="elo mascarado" data-passo="1" style="--seq:3">
+        <span class="risca"></span><span class="ordem">04</span>
+        <p class="afirmacao">Sair não é um incidente, é desgaste</p>
+        <span class="fonte">Banerji et al., 2024</span>
+      </li>
+      <li class="elo proprio mascarado" data-passo="2">
+        <span class="risca"></span><span class="ordem">05</span>
+        <p class="afirmacao">Quem fica é quem gera o valor</p>
+        <span class="fonte">contributo próprio</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ECRÃ 7 · A tensão e o contributo ============================== -->
+<section class="ecra bg-branco" data-passos="2">
+  <div class="tensao">
+    <p class="legenda lit-eyebrow">A tensão na literatura</p>
+    <div class="confronto mov-proprio" data-passo="1">
+      <div class="lado esq">
+        <p class="tese">As utilizadoras de caixas surpresa tendem a ser mulheres.</p>
+        <span class="fonte">Woo e Ramkumar, 2018</span>
+      </div>
+      <span class="risca"></span>
+      <div class="lado dir">
+        <p class="tese">As mulheres são mais avessas a experimentar vinhos novos.</p>
+        <span class="fonte">Nieto-Villegas et al., 2022</span>
+      </div>
+    </div>
+    <div class="resolucao mov-proprio" data-passo="2">
+      <span class="corte"></span>
+      <p class="frase">Risco de Categoria &ne; Risco de Escolha</p>
+      <span class="marca-contributo">contributo próprio</span>
+    </div>
+  </div>
+</section>
+
+<!-- ECRÃ 8 · O pack =============================================== -->
+<section class="ecra bg-branco" data-passos="1">
+  <div class="pack" data-passo="1">
+    <img src="{{MEDIA:pack_aberto.jpg}}" alt="Pack ÓióWine aberto, com duas garrafas, aperitivo regional e folheto de prova">
+  </div>
+</section>
+
+<!-- ECRÃ 9 · Sem catálogo ========================================= -->
+<section class="ecra centrado bg-marrom" data-passos="1">
+  <h2 class="titulo" data-passo="1">Sem catálogo</h2>
+  <p class="corpo acompanha" data-passo="1" style="margin-top:1.8rem;max-width:none">
+    um serviço executa-se, uma experiência recorda-se
+    <span class="autor" style="display:block">Pine e Gilmore, 1998</span>
+  </p>
+</section>
+
+<!-- ECRÃ 10 · A marca ============================================= -->
+<section class="ecra centrado bg-branco" data-passos="2">
+  <div class="lockup grande mascarado" data-passo="1" role="img" aria-label="ÓióWine · Sip Surprise Shine">{{LOCKUP}}</div>
+  <div class="tres-palavras">
+    <span class="p1" data-passo="2" data-espera-logo style="--seq:0">fortes</span>
+    <span class="p2" data-passo="2" data-espera-logo style="--seq:1">favoráveis</span>
+    <span class="p3" data-passo="2" data-espera-logo style="--seq:2">únicas</span>
+  </div>
+  <p class="rodape apos-palavras" data-passo="2" data-espera-logo>Keller, 1993.</p>
+</section>
+
+<!-- ECRÃ 11 · Sofia e Marta ======================================= -->
+<section class="ecra centrado bg-branco" data-passos="2">
+  <div class="personas">
+    <div class="persona sofia" data-passo="1"><figure>
+      <img src="{{MEDIA:persona_sofia.jpg}}" alt="Ilustração da persona Sofia">
+      <h3>Sofia, 32</h3>
+      <p>designer, Porto</p>
+      <p class="barreira">Não consegue escolher sem se sentir julgada.</p>
+    </figure></div>
+    <div class="persona marta" data-passo="2"><figure>
+      <img src="{{MEDIA:persona_marta.jpg}}" alt="Ilustração da persona Marta">
+      <h3>Marta, 44</h3>
+      <p>diretora de marketing, Lisboa</p>
+      <p class="barreira">Compra sempre os mesmos, por segurança.</p>
+    </figure></div>
+  </div>
+  <span class="nota-ia">ilustrações de persona geradas por IA</span>
+</section>
+
+<!-- ECRÃ 12 · A amostra =========================================== -->
+<section class="ecra bg-oliva" data-passos="2">
+  <div class="numero" data-passo="1">93</div>
+  <p class="alerta" data-passo="2">28% nunca bebem vinho</p>
+</section>
+
+<!-- ECRÃ 13 · O resultado central ================================= -->
+<section class="ecra bg-azul" data-passos="3">
+  <div class="numero largo" data-passo="1">30,3%</div>
+  <div class="duas-palavras">
+    <div class="col" data-passo="2"><span class="lbl">Conhecimento</span></div>
+    <div class="col" data-passo="2"><span class="lbl">Preço justo</span>
+      <span class="seta-cima" data-passo="3" aria-label="coeficiente positivo">&uarr;</span></div>
+  </div>
+  <p class="rodape">regressão linear múltipla · n = 93 · relatório, ponto 4.4</p>
+</section>
+
+<!-- ECRÃ 14 · O que não se provou ================================= -->
+<section class="ecra bg-oliva" data-passos="4">
+  <h2 class="titulo largo" data-passo="1">Dizer o que não se provou também faz parte.</h2>
+  <div style="margin-top:2.5rem">
+    <div class="numerada" data-passo="2"><span class="n">01</span><span class="t">idade</span></div>
+    <div class="numerada" data-passo="3"><span class="n">02</span><span class="t">presente vs. próprio</span></div>
+    <div class="numerada" data-passo="4"><span class="n">03</span><span class="t">rendimento</span></div>
+  </div>
+</section>
+
+<!-- ECRÃ 15 · Mercado e meta ====================================== -->
+<section class="ecra centrado bg-branco" data-passos="2">
+  <div class="mercado">
+    <div data-passo="1">
+      <div class="grande">50.000</div>
+      <div class="lbl">mercado disponível</div>
+    </div>
+    <div data-passo="2" style="margin-top:2.5rem">
+      <div class="pequeno">~6.000</div>
+      <div class="lbl">meta operacional, 2031</div>
+    </div>
+  </div>
+</section>
+
+<!-- ECRÃ 16 · O protótipo ========================================= -->
+<section class="ecra ecra-video bg-preto" data-passos="1">
+  <video id="videoProto" muted playsinline preload="auto" src="media/prototipo.mp4"
+         data-reserva="{{MEDIA:prototipo.mp4}}"
+         aria-label="Percurso gravado do protótipo do site"></video>
+</section>
+
+<!-- ECRÃ 17 · Calendário ========================================== -->
+<section class="ecra bg-branco" data-passos="1" data-cortavel="calendario">
+  <div class="linha-tempo" data-passo="1">
+    <div class="barra"></div>
+    <div class="marcas">
+      <div class="marca"><div class="ano">2026</div><div class="o-que">construir</div></div>
+      <div class="marca"><div class="ano">Jan 2027</div><div class="o-que">lançar</div></div>
+      <div class="marca"><div class="ano">29.000 €</div><div class="o-que">investimento</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ECRÃ 18 · Os números e a auditoria ============================ -->
+<section class="ecra bg-branco" data-passos="3">
+  <table class="auditoria">
+    <tr class="cabeca"><th></th><th>antes</th><th></th><th>depois</th></tr>
+    <tr data-passo="1"><td>Valor do projeto</td><td class="antes">660.459 €</td>
+      <td class="seta">&rarr;</td><td class="depois">636.250 €</td></tr>
+    <tr data-passo="2"><td>Rentabilidade</td><td class="antes">109,0 %</td>
+      <td class="seta">&rarr;</td><td class="depois">105,9 %</td></tr>
+    <tr data-passo="3"><td>Recuperação</td><td class="antes">3,43 anos</td>
+      <td class="seta">&rarr;</td><td class="depois">3,48 anos</td></tr>
+  </table>
+  <p class="rodape" style="text-align:center">Anexo K, versão original · Anexo I, versão revista com registo de alterações</p>
+</section>
+
+<!-- ECRÃ 19 · Retenção ============================================ -->
+<section class="ecra bg-vermelho" data-passos="3">
+  <h2 class="titulo" data-passo="1">Retenção, não margem.</h2>
+  <div class="barras" data-passo="2">
+    <div class="barra-linha"><span class="val">300 €</span>
+      <span class="tubo"><span class="cheio" style="--f:.6"></span></span></div>
+    <div class="barra-linha"><span class="val">500 €</span>
+      <span class="tubo"><span class="cheio" style="--f:1"></span></span></div>
+    <p class="barra-rotulo">cancelamento 5% &rarr; 3%</p>
+  </div>
+  <div class="linhas" data-passo="3" style="margin-top:2.2rem">
+    <p class="corpo" style="--i:0">o número de cancelamentos não é meu</p>
+    <p class="corpo" style="--i:1">sem catálogo não há saída</p>
+  </div>
+</section>
+
+<!-- ECRÃ 20 · Fecho =============================================== -->
+<section class="ecra centrado bg-azul" data-passos="1">
+  <div class="lockup" role="img" aria-label="ÓióWine · Sip Surprise Shine">{{LOCKUP}}</div>
+</section>
+
+</div><!-- /palco -->
+<div id="progresso" style="width:0"></div>
+
+<aside class="painel" id="notas" hidden aria-live="polite">
+  <div class="falado" id="notasTexto"></div>
+  <div class="lado">
+    <div><div class="meta">decorrido · previsto</div>
+      <div class="relogio"><span id="notasT">0:00</span>
+        <span style="opacity:.4;font-size:1.1rem"> / <span id="notasP">0:00</span></span></div></div>
+    <div><div class="meta">desvio</div><div class="desvio dentro" id="notasD">+0s</div></div>
+    <div class="seguinte" id="notasSeg"></div>
+  </div>
+</aside>
+
+<aside class="painel" id="crono" hidden>
+  <div class="t" id="cronoT">0:00</div>
+  <div class="d dentro" id="cronoD">+0s</div>
+</aside>
+
+<aside class="painel" id="grelha" hidden>
+  <h2>Grelha de navegação · Esc para fechar</h2>
+  <div class="cartoes" id="grelhaCartoes"></div>
+</aside>
+
+<div class="painel" id="ajuda" data-esconde>&rarr; &larr; passo · <b>P vista de orador</b> · N notas · T cronómetro · G grelha · V repor vídeo</div>
+<script>
+"use strict";
+
+/* ====================================================================
+   CORTE DE EMERGÊNCIA (ponto 5 do briefing).
+   Passar a false remove o ecrã do Calendário e renumera tudo sozinho.
+   O nome não traz número de propósito: a posição do ecrã muda quando se
+   acrescentam outros, e um INCLUIR_ECRA_17 a cortar o ecrã 18 seria armadilha.
+   ==================================================================== */
+var INCLUIR_CALENDARIO = true;
+
+/* ====================================================================
+   OS VINTE ECRÃS · duração prevista e texto falado
+   ==================================================================== */
+var ECRAS = [
+ {t:"Abertura", d:15, n:"Ricardo Araújo, dois nove três nove sete nove zero. Vou falar de vinho. Mas o vinho é a parte menos interessante desta história."},
+ {t:"O projeto", d:20, n:"A ÓióWine é uma subscrição mensal de vinho português, pensada sobretudo para mulheres. Para saber se isto se aguenta de pé, fiz quatro coisas: li o que já se escreveu, perguntei a noventa e três pessoas, fiz as contas pelo modelo do IAPMEI, e construí o site."},
+ {t:"89%", d:30, n:"Oitenta e nove por cento. É a fatia das vendas de bebidas em Portugal que está nas mãos de vinte por cento das empresas. São quatrocentas empresas a dividir duzentos milhões de euros. E a margem média é de treze por cento. Ou seja: mercado cheio, mercado velho, e quase ninguém a ganhar dinheiro. É um péssimo sítio para lançar uma marca."},
+ {t:"25%", d:25, n:"Mas há um canto deste mercado que cresce vinte e cinco por cento por ano. É a subscrição de bebidas. E reparem no que isto quer dizer. Não é o vinho que está a crescer. É a maneira de o comprar."},
+ {t:"O inimigo", d:35, n:"Esta frase é nossa, do trabalho de Marketing de Conteúdos, e é a tese da marca. Entrar numa garrafeira e ter medo de escolher mal não é culpa de quem entra. É a categoria a funcionar exatamente como foi pensada. E nenhuma das marcas que já lá estão faz alguma coisa contra isso. É esse o espaço vazio."},
+ {t:"A pergunta", d:20, n:"A pergunta que resume o projeto é esta. Tudo o que vem a seguir, do preço ao site, sai daqui."},
+ {t:"A cadeia causal", d:40, n:"A revisão da literatura não é uma lista de autores. É uma cadeia. Primeiro elo, o Iyengar: quem subscreve não o faz por razões de dinheiro. Segundo, o Li, que analisou vinte e dois mil comentários de clientes: numa caixa surpresa, o que dá valor é o prazer e não a utilidade. Terceiro, o Ding e o Tseng: é esse prazer que faz a ponte entre gostar de uma marca e ser fiel a ela. Quarto, o Banerji: ser fiel quer dizer ficar, e quem sai não sai por um incidente, sai por desgaste. E o quinto elo já não é de ninguém, é meu: quem fica é que gera o dinheiro que aparece no capítulo oito. É esta a linha que liga a teoria à folha de cálculo. E é por isso que digo que a experiência não é a maneira de comunicar o negócio. A experiência é o negócio."},
+ {t:"A tensão e o contributo", d:30, n:"E encontrei aqui um problema que a literatura não resolve. De um lado, o Woo e a Ramkumar dizem que quem subscreve caixas surpresa são sobretudo mulheres. Do outro, a Nieto-Villegas diz que as mulheres são mais avessas a experimentar vinhos que não conhecem. As duas coisas não batem certo, e o meu serviço é as duas coisas ao mesmo tempo. A minha proposta é separar dois medos diferentes. Uma coisa é ter medo do vinho enquanto produto novo. Outra é ter medo de escolher. O que existe aqui é o segundo. Por isso a ÓióWine só usa regiões conhecidas: a surpresa está no produtor e na história, nunca na categoria. Isto é uma hipótese minha, não é uma conclusão, e fica como a primeira coisa a testar a seguir."},
+ {t:"O pack", d:30, n:"Isto chega a casa uma vez por mês. Duas garrafas portuguesas de regiões diferentes, um aperitivo dessa mesma região, e um folheto com a história de quem as fez. Trinta e cinco euros, portes incluídos. E quem paga não faz ideia do que está lá dentro."},
+ {t:"Sem catálogo", d:30, n:"A decisão mais arriscada do site foi não ter catálogo. Sem filtros, sem oitenta rótulos para comparar. Toda a gente faz o contrário. Mas um catálogo devolve à cliente a decisão que nós dissemos que íamos tomar por ela. E há uma razão mais funda, que vem do Pine e do Gilmore: um serviço executa-se, uma experiência recorda-se. Nem os vinhos nem o aperitivo são coisas raras em Portugal. O que a ÓióWine vende é o momento em que a caixa se abre."},
+ {t:"A marca", d:30, n:"O nome vem do «ó i ó ai» e o símbolo é uma figura a dançar o vira dentro de um copo. A assinatura são três palavras: Sip, Surprise, Shine. Nenhuma delas fala de vinho. E isso não é acaso. O Keller diz que uma marca só vale alguma coisa quando as pessoas guardam na cabeça associações que são três coisas ao mesmo tempo: fortes, favoráveis e únicas. Ora, vinho bom e entrega a horas são fortes e favoráveis. Únicas não são. Toda a gente promete isso. As únicas são a curadoria e o folheto. E é por isso que esta marca não se pode diferenciar pelo produto. Tem de se diferenciar pelo que faz à volta dele."},
+ {t:"Sofia e Marta", d:20, n:"Esta é a Sofia. Trinta e dois anos, designer, Porto. O problema dela é não conseguir escolher sem se sentir julgada. E esta é a Marta. Quarenta e quatro, diretora de marketing, Lisboa. Compra sempre os mesmos, por segurança. Não existem, mas foram elas que decidiram tudo neste projeto."},
+ {t:"93", d:35, n:"Noventa e três respostas. Questionário online, tratado em SPSS. E vou já dizer as duas fraquezas, porque estão no relatório e prefiro ser eu a dizê-las. A primeira: as pessoas não foram escolhidas ao acaso, foram as que estavam ao alcance. Isso chama-se amostra por conveniência e quer dizer que não posso passar estes resultados para o país inteiro. A segunda é pior. Havia uma pergunta que devia ter filtrado quem não bebe vinho, e não filtrou. Vinte e oito por cento dizem que nunca bebem. Isso puxa as médias todas para baixo. Portanto o que vou mostrar a seguir está por defeito, não por excesso."},
+ {t:"30,3%", d:50, n:"Este é o resultado principal. Fiz uma regressão, que é uma conta que mede quanto é que umas coisas explicam outra. E duas coisas explicam trinta por cento da vontade de subscrever. A primeira é o quanto a pessoa acha que percebe de vinho. A segunda é o preço que ela considera justo. E aqui está a parte interessante: quanto mais alto o preço que a pessoa acha justo, mais provável é que subscreva. Trinta por cento pode não parecer muito, mas nestes estudos é um resultado forte. E mudou duas coisas no produto. O folheto deixou de ser um mimo e passou a ser a peça que trabalha aquilo que mais pesa na decisão. E o preço deixou de ser barato de propósito: no site, ele aparece dividido entre vinhos, aperitivo, curadoria e portes. O preço tem de ser explicado, não anunciado."},
+ {t:"O que não se provou", d:35, n:"Dizer o que não se provou também faz parte de apresentar resultados. São três coisas. Uma: a idade não teve relação significativa com o interesse, portanto a escolha da faixa etária não vem daqui, vem da frequência de consumo. Duas: a divisão entre quem compra para si e quem compra para oferecer é uma ideia minha, não é um resultado estatístico, porque essa análise ficou por fazer. Três: a ligação entre rendimento e vontade de pagar não posso usar, porque essas variáveis não estavam nas saídas do programa. Três limitações, e nenhuma delas está escondida no relatório."},
+ {t:"50.000 e 6.000", d:25, n:"Cinquenta mil. É o mercado a que este modelo consegue chegar. E foi este o número que eu escrevi como objetivo na proposta inicial. Estava errado. Cinquenta mil é o mercado que existe, não é a meta. A meta são cerca de seis mil subscritoras em dois mil e trinta e um. E é sobre essas seis mil, não sobre as cinquenta mil, que estão feitas as contas."},
+ {t:"O protótipo", d:30, n:"E isto não é uma maqueta. É o site a funcionar. Sete ecrãs, desde a entrada até à área da cliente, com o preço a somar-se em direto e o código para convidar uma amiga a aparecer logo a seguir à compra. Está feito. Podem experimentar hoje.\n\n▸ CALAR NOS ÚLTIMOS CINCO SEGUNDOS."},
+ {t:"Calendário", d:15, n:"E tem data. Dois mil e vinte e seis é o ano de montar: empresa, marca registada, adegas contratadas, site pronto. Vinte e nove mil euros de investimento. A primeira caixa sai em janeiro de dois mil e vinte e sete."},
+ {t:"Os números e a auditoria", d:40, n:"As contas seguem o modelo do IAPMEI. Mas antes dos números, uma coisa que faço questão de deixar registada. Peguei no modelo financeiro que vinha do trabalho de grupo e fui verificá-lo linha a linha. Tinha um erro numa fórmula de preços. Corrigi. E o efeito está aqui: tirou cento e vinte e sete mil euros à receita dos cinco anos. O valor do projeto desceu para seiscentos e trinta e seis mil euros. A rentabilidade continua acima dos cem por cento. E o tempo para recuperar o investimento praticamente não mexeu, fica pouco abaixo de três anos e meio. A versão antiga está no Anexo K, a corrigida está no Anexo I, com o registo de cada alteração. A correção piorou os números. Não mudou a conclusão."},
+ {t:"Retenção", d:40, n:"E acabo com aquilo que me tira o sono, que é também a conclusão mais importante do trabalho. O que faz este negócio funcionar não é a margem de cada caixa. É as pessoas ficarem. Se eu conseguir baixar os cancelamentos de cinco para três por cento ao mês, cada cliente passa a valer quinhentos euros em vez de trezentos. E sem gastar mais nada em publicidade. O problema é que esse número de cancelamentos veio de referências do setor, não de dados meus, e é a variável que mais pesa em tudo. Segunda coisa: sem catálogo, quem receber dois vinhos de que não gosta não tem para onde fugir. E os estudos mostram que uma escolha falhada dá muito mais conversa na internet do que uma escolha certeira. Nenhuma destas duas está resolvida. Estão identificadas. E isso é diferente."},
+ {t:"Fecho", d:10, n:"Sip. Surprise. Shine. Obrigado.\n\n▸ SILÊNCIO. NÃO PERGUNTAR SE HÁ DÚVIDAS."}
+];
+
+/* ==================================================================== */
+var $  = function(s){ return document.querySelector(s); };
+var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+var reduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+var ecras = $$(".ecra");
+
+/* corte de emergência do ecrã 17 */
+if(!INCLUIR_CALENDARIO){
+  var alvo = document.querySelector('[data-cortavel="calendario"]');
+  if(alvo){
+    var idx = ecras.indexOf(alvo);
+    alvo.parentNode.removeChild(alvo);
+    ecras.splice(idx,1);
+    ECRAS.splice(idx,1);
+  }
+}
+
+var N = ecras.length;
+var passosDe = ecras.map(function(s){ return parseInt(s.getAttribute("data-passos"),10)||1; });
+var TOTAL_PASSOS = passosDe.reduce(function(a,b){ return a+b; },0);
+var ultimoPasso = passosDe.map(function(){ return 0; });
+
+var estado = { e:0, p:0 };
+var emTransicao = false;
+var pendente = null;   // guarda UMA intencao premida durante a transicao
+
+/* ---------- montar as máscaras de texto -----------------------------
+   O texto de display sobe por trás de uma máscara, como no movimento de
+   referência: <span class="mv"><span class="mi">palavra</span></span>.
+   Tudo o resto entra como objeto. */
+var MASCARA_UNIDADE = ".numero, .mercado .grande," +
+  " .mercado .pequeno, .mercado .lbl, .marca-contributo, .alerta, .afirmacao";
+// as palavras do ecrã 10 têm movimento próprio: não levam máscara
+var MASCARA_PALAVRA = ".titulo, .resolucao .frase";
+
+function envolver(texto, i){
+  return '<span class="mv"><span class="mi" style="--w:'+i+'">'+texto+'</span></span>';
+}
+(function prepararMascaras(){
+  // o ecrã 4 traz a frase num atributo, para não a repetir na marcação
+  $$(".palavras").forEach(function(el){
+    el.textContent = el.getAttribute("data-frase") || el.textContent;
+  });
+  $$(MASCARA_UNIDADE).forEach(function(el){
+    if(el.querySelector(".mv")) return;
+    el.innerHTML = envolver(el.innerHTML, 0);
+  });
+  $$(MASCARA_PALAVRA).forEach(function(el){
+    if(el.querySelector(".mv")) return;
+    el.innerHTML = el.textContent.trim().split(/\s+/)
+      .map(function(w,i){ return envolver(w, i); }).join(" ");
+  });
+  // quem só tem texto mascarado não precisa de esbatimento próprio
+  $$(".mv").forEach(function(mv){
+    var host = mv.closest("[data-passo]");
+    if(host && !host.classList.contains("mascarado")){
+      var soMascara = !Array.prototype.some.call(host.querySelectorAll("*"), function(n){
+        return n.nodeType===1 && !n.closest(".mv") && !n.classList.contains("mv")
+               && n.textContent.trim() && !n.querySelector(".mv");
+      });
+      if(soMascara) host.classList.add("mascarado");
+    }
+  });
+})();
+
+function limparPassos(sec){
+  sec.querySelectorAll("[data-passo], .barra-linha").forEach(function(el){
+    el.classList.remove("visivel");
+  });
+}
+
+/* ---------- aplicar passos ------------------------------------------ */
+/* Alguns elementos não podem aparecer antes de o logótipo acabar de se
+   montar — no ecrã do Keller, os critérios dele só fazem sentido depois de a
+   assinatura estar posta. Se o orador avançar cedo, esperam; não se perdem. */
+function travarAteLogotipo(sec, elementos){
+  var lk = sec.querySelector(".lockup");
+  if(!lk) return false;
+  var correr = [];
+  try {
+    correr = lk.getAnimations({subtree:true}).filter(function(a){
+      return a.playState === "running";
+    });
+  } catch(e){ return false; }
+  if(!correr.length) return false;
+  elementos.forEach(function(el){ el.classList.remove("visivel"); });
+  Promise.all(correr.map(function(a){ return a.finished.catch(function(){}); }))
+    .then(function(){
+      if(ecras[estado.e] !== sec) return;      // o orador já saiu do ecrã
+      elementos.forEach(function(el){
+        var p = parseInt(el.getAttribute("data-passo"),10);
+        if(p <= estado.p+1) el.classList.add("visivel");
+      });
+    });
+  return true;
+}
+
+function aplicarPassos(){
+  var sec = ecras[estado.e];
+  sec.querySelectorAll("[data-passo]").forEach(function(el){
+    var p = parseInt(el.getAttribute("data-passo"),10);
+    el.classList.toggle("visivel", p <= estado.p+1);
+  });
+  if(!reduzido && !sec.classList.contains("reposicao")){
+    var adiar = Array.prototype.filter.call(
+      sec.querySelectorAll("[data-espera-logo]"),
+      function(el){ return el.classList.contains("visivel"); });
+    if(adiar.length) travarAteLogotipo(sec, adiar);
+  }
+  // elementos compostos que precisam da classe no contentor
+  sec.querySelectorAll(".confronto, .linha-tempo, .palavras").forEach(function(el){
+    var p = parseInt(el.getAttribute("data-passo"),10);
+    if(!isNaN(p)) el.classList.toggle("visivel", p <= estado.p+1);
+  });
+  sec.querySelectorAll(".barra-linha").forEach(function(el){
+    var pai = el.closest("[data-passo]");
+    if(pai) el.classList.toggle("visivel", pai.classList.contains("visivel"));
+  });
+  var prog = ((indiceGlobal()+1)/TOTAL_PASSOS)*100;
+  $("#progresso").style.width = prog+"%";
+  document.body.classList.toggle("claro", sec.classList.contains("bg-branco"));
+  actualizarNotas();
+}
+
+function indiceGlobal(){
+  var n = 0;
+  for(var i=0;i<estado.e;i++) n += passosDe[i];
+  return n + estado.p;
+}
+
+/* ---------- mostrar ecrã -------------------------------------------- */
+function mostrar(i, passo){
+  ecras.forEach(function(s,k){ s.classList.toggle("activo", k===i); });
+  estado.e = i;
+  estado.p = passo;
+  aplicarPassos();
+  gerirVideo();
+  if(i === N-1) pararCronometro();
+}
+
+/* ---------- transição por movimento dos painéis ---------------------
+   O ecrã que entra desliza por cima do que sai; o que fica por baixo
+   desloca-se menos (paralaxe) e escurece. Avançar traz o painel de baixo
+   para cima; recuar deixa o painel de cima cair, revelando o anterior. */
+var DUR_PAINEL = 700;   // ms
+var RECUO      = "-16%";
+
+function transitar(destino, passoDestino){
+  if(reduzido){ mostrar(destino, passoDestino); return; }
+  emTransicao = true;
+
+  var frente  = destino > estado.e;
+  var saiEl   = ecras[estado.e];
+  var entraEl = ecras[destino];
+
+  // a avançar, o conteúdo do ecrã novo sobe depois do painel assentar;
+  // a recuar, repõe-se de imediato (ponto 4.1: não repetir a animação toda)
+  if(frente) limparPassos(entraEl);
+
+  var topo   = frente ? entraEl : saiEl;
+  var fundo  = frente ? saiEl   : entraEl;
+  topo.classList.add("topo");
+  fundo.classList.add("fundo");
+  topo.style.transform  = frente ? "translateY(100%)" : "translateY(0)";
+  fundo.style.transform = frente ? "translateY(0)"    : "translateY("+RECUO+")";
+
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    topo.classList.add("mover");
+    fundo.classList.add("mover");
+    topo.style.transform  = frente ? "translateY(0)" : "translateY(100%)";
+    fundo.style.transform = frente ? "translateY("+RECUO+")" : "translateY(0)";
+  });});
+
+  // as palavras sobem enquanto o painel ainda assenta; a recuar, o ecrã
+  // revelado repõe-se de uma vez, sem voltar a percorrer a animação
+  if(!frente) entraEl.classList.add("reposicao");
+  setTimeout(function(){
+    estado.e = destino; estado.p = passoDestino;
+    aplicarPassos();
+    if(!frente) setTimeout(function(){ entraEl.classList.remove("reposicao"); }, 80);
+  }, frente ? 300 : 0);
+
+  setTimeout(function(){
+    [topo, fundo].forEach(function(el){
+      el.classList.remove("topo","fundo","mover");
+      el.style.transform = "";
+    });
+    mostrar(destino, passoDestino);
+    emTransicao = false;
+    if(pendente){ var q = pendente; pendente = null;
+      (q === "+") ? avancar() : recuar(); }
+  }, DUR_PAINEL + 60);
+}
+
+/* ---------- avançar e recuar ---------------------------------------- */
+function avancar(){
+  if(emTransicao){ pendente = "+"; return; }
+  arrancarCronometro();
+  if(estado.p < passosDe[estado.e]-1){ estado.p++; aplicarPassos(); return; }
+  if(estado.e < N-1){
+    ultimoPasso[estado.e] = estado.p;
+    transitar(estado.e+1, 0);
+  }
+}
+function recuar(){
+  if(emTransicao){ pendente = "-"; return; }
+  if(estado.p > 0){ estado.p--; aplicarPassos(); return; }
+  if(estado.e > 0){
+    var anterior = estado.e-1;
+    // repor o ecrã anterior no seu último passo (ponto 4.1)
+    transitar(anterior, passosDe[anterior]-1);
+  }
+}
+function irPara(i){
+  if(emTransicao || i===estado.e) return;
+  transitar(i, 0);
+}
+
+/* ---------- cronómetro ---------------------------------------------- */
+var t0 = null, timerId = null, parado = false;
+function arrancarCronometro(){
+  if(t0 !== null || parado) return;
+  t0 = Date.now();
+  timerId = setInterval(tique, 200);
+}
+function pararCronometro(){
+  if(timerId){ clearInterval(timerId); timerId = null; }
+  parado = true;
+}
+function decorrido(){ return t0===null ? 0 : (Date.now()-t0)/1000; }
+function previstoAte(i){
+  var s = 0; for(var k=0;k<i;k++) s += ECRAS[k].d; return s;
+}
+function mmss(s){
+  s = Math.max(0, Math.round(s));
+  return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);
+}
+function tique(){
+  var dec = decorrido();
+  var prev = previstoAte(estado.e);
+  var desv = dec - prev;
+  var txt = (desv>=0?"+":"−")+Math.abs(Math.round(desv))+"s";
+  var dentro = Math.abs(desv) <= 15;
+  ["#notasT","#cronoT"].forEach(function(s){ var e=$(s); if(e) e.textContent = mmss(dec); });
+  var np = $("#notasP"); if(np) np.textContent = mmss(prev);
+  ["#notasD","#cronoD"].forEach(function(s){
+    var e=$(s); if(!e) return;
+    e.textContent = txt;
+    e.classList.toggle("dentro", dentro);
+    e.classList.toggle("fora", !dentro);
+  });
+  enviarTempoOrador(dec, prev, txt, dentro);
+}
+
+/* ---------- painel de notas ------------------------------------------ */
+function actualizarNotas(){
+  var d = ECRAS[estado.e];
+  $("#notasTexto").innerHTML =
+    '<div class="meta" style="margin-bottom:.6rem">Ecrã '+(estado.e+1)+' de '+N+
+    ' · '+d.t+' · passo '+(estado.p+1)+' de '+passosDe[estado.e]+'</div>'+
+    d.n.split("\n").map(function(l){ return l ? "<p>"+l+"</p>" : ""; }).join("");
+  var seg = ECRAS[estado.e+1];
+  $("#notasSeg").textContent = seg
+    ? "Seguinte · "+seg.t+". "+seg.n.split(". ")[0]+"."
+    : "Último ecrã.";
+  tique();
+  enviarOrador();
+}
+
+/* ---------- vídeo do ecrã 16 ----------------------------------------- */
+/* Preferimos o ficheiro em media/, que é mais leve para o navegador. Se ele
+   não estiver ao lado do HTML — ficheiro movido sozinho, pen sem a pasta —
+   passamos para a cópia embebida em base64. O <source> nativo não serve:
+   só recua por tipo não suportado, não por erro de leitura do ficheiro. */
+(function reservaDoVideo(){
+  var v = document.querySelector("#videoProto");
+  if(!v) return;
+  v.addEventListener("error", function(){
+    var r = v.getAttribute("data-reserva");
+    if(r && v.getAttribute("src") !== r){
+      v.setAttribute("src", r);
+      v.load();
+      if(ecras[estado.e] && ecras[estado.e].contains(v)){
+        var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
+      }
+    }
+  }, true);
+})();
+function ecraDeVideo(){ return ecras[estado.e].querySelector("video"); }
+function gerirVideo(){
+  $$("video").forEach(function(v){
+    if(v.closest(".ecra") !== ecras[estado.e]){ v.pause(); }
+  });
+  var v = ecraDeVideo();
+  if(v){ v.currentTime = 0; var pr = v.play(); if(pr && pr.catch) pr.catch(function(){}); }
+}
+function reporVideo(){
+  var v = ecraDeVideo();
+  if(v){ v.currentTime = 0; var pr = v.play(); if(pr && pr.catch) pr.catch(function(){}); }
+}
+
+/* ---------- painéis --------------------------------------------------- */
+function alternar(sel){
+  var el = $(sel);
+  el.hidden = !el.hidden;
+  if(sel === "#grelha" && !el.hidden) desenharGrelha();
+}
+function fecharTudo(){ ["#notas","#crono","#grelha"].forEach(function(s){ $(s).hidden = true; }); }
+
+var CORES = {"bg-azul":"#33474E","bg-vermelho":"#A13532","bg-marrom":"#615C48",
+  "bg-marrom-fundo":"#3E3B2E","bg-oliva":"#9F9772","bg-branco":"#FFFFFF","bg-preto":"#000000"};
+function desenharGrelha(){
+  $("#grelhaCartoes").innerHTML = ecras.map(function(s,i){
+    var cor = "#222";
+    Object.keys(CORES).forEach(function(c){ if(s.classList.contains(c)) cor = CORES[c]; });
+    var escuro = cor === "#FFFFFF" || cor === "#9F9772";
+    return '<button data-i="'+i+'" class="'+(i===estado.e?"actual":"")+'">'+
+      '<div class="mini" style="background:'+cor+';color:'+(escuro?"#33474E":"#fff")+'">'+
+      '<span>'+(i+1)+'</span></div>'+
+      '<div class="cap"><span>'+ECRAS[i].t+'</span>'+
+      '<span class="dur">'+ECRAS[i].d+'s</span></div></button>';
+  }).join("");
+  $$("#grelha button").forEach(function(b){
+    b.addEventListener("click", function(){
+      $("#grelha").hidden = true;
+      irPara(parseInt(b.getAttribute("data-i"),10));
+    });
+  });
+}
+
+
+/* ====================================================================
+   VISTA DE ORADOR — segunda janela, para o portátil
+   A apresentação vai em ecrã inteiro para o projetor; esta janela fica no
+   ecrã do orador. Comunicam por postMessage, que funciona entre uma janela
+   e a que a abriu mesmo a partir de um ficheiro local.
+   ==================================================================== */
+var janelaOrador = null;
+
+var DOC_ORADOR = [
+'<!doctype html><html lang="pt-PT"><head><meta charset="utf-8">',
+'<title>ÓióWine · vista de orador</title><style>',
+'*{box-sizing:border-box;margin:0;padding:0}',
+'body{font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;',
+'  background:#14181a;color:#efe9dd;height:100vh;display:grid;',
+'  grid-template-rows:auto 1fr auto;gap:0}',
+'header{display:flex;justify-content:space-between;align-items:baseline;',
+'  padding:14px 20px;border-bottom:1px solid rgba(239,233,221,.16)}',
+'header .onde{font-size:13px;letter-spacing:.12em;text-transform:uppercase;',
+'  color:rgba(239,233,221,.55)}',
+'header .titulo{font-size:20px;font-weight:600}',
+'main{display:grid;grid-template-columns:1fr 230px;gap:20px;padding:18px 20px;',
+'  overflow:hidden}',
+'#falado{overflow-y:auto;font-size:20px;line-height:1.6}',
+'#falado p{margin-bottom:12px}',
+'#falado b{color:#E0A785;display:block;margin-top:14px;font-size:16px;',
+'  letter-spacing:.06em}',
+'aside{border-left:1px solid rgba(239,233,221,.16);padding-left:18px;',
+'  display:flex;flex-direction:column;gap:16px}',
+'aside .rot{font-size:11px;letter-spacing:.14em;text-transform:uppercase;',
+'  color:rgba(239,233,221,.45);margin-bottom:3px}',
+'#rel{font-size:40px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}',
+'#prev{font-size:15px;color:rgba(239,233,221,.5);font-variant-numeric:tabular-nums}',
+'#des{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}',
+'#des.dentro{color:#7BD88F}#des.fora{color:#E0A785}',
+'#passo{font-size:15px;color:rgba(239,233,221,.65)}',
+'footer{padding:12px 20px;border-top:1px solid rgba(239,233,221,.16);',
+'  font-size:14px;color:rgba(239,233,221,.62)}',
+'footer b{color:rgba(239,233,221,.9)}',
+'.dica{font-size:12px;color:rgba(239,233,221,.35);margin-top:6px}',
+'</style></head><body>',
+'<header><span class="onde" id="onde">…</span><span class="titulo" id="tit">…</span></header>',
+'<main><div id="falado"></div><aside>',
+'<div><div class="rot">decorrido</div><div id="rel">0:00</div>',
+'<div id="prev">previsto 0:00</div></div>',
+'<div><div class="rot">desvio</div><div id="des" class="dentro">+0s</div></div>',
+'<div><div class="rot">passo</div><div id="passo">…</div></div>',
+'</aside></main>',
+'<footer><span id="seg">…</span>',
+'<div class="dica">As setas funcionam aqui e na apresentação.</div></footer>',
+'<script>',
+'var $=function(i){return document.getElementById(i)};',
+'window.addEventListener("message",function(ev){',
+'  var d=ev.data||{};',
+'  if(d.tipo==="estado"){',
+'    $("onde").textContent="Ecrã "+d.e+" de "+d.N;',
+'    $("tit").textContent=d.titulo;',
+'    $("passo").textContent=d.p+" de "+d.passos;',
+'    $("falado").innerHTML=d.falado;',
+'    $("falado").scrollTop=0;',
+'    $("seg").innerHTML=d.seguinte;',
+'    document.title="Ecrã "+d.e+" · "+d.titulo;',
+'  } else if(d.tipo==="tempo"){',
+'    $("rel").textContent=d.decorrido;',
+'    $("prev").textContent="previsto "+d.previsto;',
+'    var e=$("des"); e.textContent=d.desvio;',
+'    e.className=d.dentro?"dentro":"fora";',
+'  }',
+'});',
+'document.addEventListener("keydown",function(ev){',
+'  var k=ev.key;',
+'  if(["ArrowRight","ArrowLeft"," ","PageDown","PageUp","Home","End","v","V"].indexOf(k)<0) return;',
+'  ev.preventDefault();',
+'  if(window.opener && !window.opener.closed) window.opener.postMessage({tipo:"tecla",k:k},"*");',
+'});',
+'window.addEventListener("beforeunload",function(){',
+'  if(window.opener && !window.opener.closed) window.opener.postMessage({tipo:"fechou"},"*");',
+'});',
+'<\/script></body></html>'
+].join("");
+
+function abrirOrador(){
+  if(janelaOrador && !janelaOrador.closed){ janelaOrador.focus(); return; }
+  janelaOrador = window.open("", "oiowineOrador",
+    "width=1000,height=740,menubar=no,toolbar=no,location=no,status=no");
+  if(!janelaOrador){
+    alert("O navegador bloqueou a janela de orador.\nPermita janelas para este ficheiro e volte a carregar em P.");
+    return;
+  }
+  janelaOrador.document.open();
+  janelaOrador.document.write(DOC_ORADOR);
+  janelaOrador.document.close();
+  // com a vista de orador aberta, a sobreposição sai da projeção
+  $("#notas").hidden = true;
+  setTimeout(enviarOrador, 120);
+}
+function fecharOrador(){
+  if(janelaOrador && !janelaOrador.closed) janelaOrador.close();
+  janelaOrador = null;
+}
+function oradorAberta(){ return !!(janelaOrador && !janelaOrador.closed); }
+
+function enviarOrador(){
+  if(!oradorAberta()){ janelaOrador = null; return; }
+  var d = ECRAS[estado.e], seg = ECRAS[estado.e+1];
+  janelaOrador.postMessage({
+    tipo:"estado", e:estado.e+1, N:N, titulo:d.t,
+    p:estado.p+1, passos:passosDe[estado.e],
+    falado: d.n.split("\n").filter(Boolean).map(function(l){
+      return l.trim().charAt(0)==="▸" ? "<b>"+l.trim()+"</b>" : "<p>"+l.trim()+"</p>";
+    }).join(""),
+    seguinte: seg ? "<b>Seguinte</b> · "+seg.t+". "+seg.n.split(". ")[0]+"."
+                  : "<b>Último ecrã.</b>"
+  }, "*");
+}
+function enviarTempoOrador(dec, prev, txt, dentro){
+  if(!oradorAberta()) return;
+  janelaOrador.postMessage({tipo:"tempo", decorrido:mmss(dec),
+    previsto:mmss(prev), desvio:txt, dentro:dentro}, "*");
+}
+
+window.addEventListener("message", function(ev){
+  var d = ev.data || {};
+  if(d.tipo === "tecla"){
+    switch(d.k){
+      case "ArrowRight": case " ": case "PageDown": avancar(); break;
+      case "ArrowLeft":  case "PageUp":            recuar();  break;
+      case "Home": irPara(0);   break;
+      case "End":  irPara(N-1); break;
+      case "v": case "V": reporVideo(); break;
+    }
+  } else if(d.tipo === "fechou"){ janelaOrador = null; }
+});
+window.addEventListener("beforeunload", fecharOrador);
+
+/* ---------- entradas · ponto 4.2 -------------------------------------- */
+document.addEventListener("keydown", function(ev){
+  var k = ev.key;
+  if(k === "Escape"){ fecharTudo(); ev.preventDefault(); return; }
+  if(!$("#grelha").hidden && k !== "g" && k !== "G") return;
+  switch(k){
+    case "ArrowRight": case " ": case "PageDown": case "Enter":
+      avancar(); ev.preventDefault(); break;
+    case "ArrowLeft": case "PageUp":
+      recuar(); ev.preventDefault(); break;
+    case "Home": irPara(0); ev.preventDefault(); break;
+    case "End":  irPara(N-1); ev.preventDefault(); break;
+    case "p": case "P":
+      oradorAberta() ? fecharOrador() : abrirOrador(); ev.preventDefault(); break;
+    case "n": case "N":
+      // com a vista de orador aberta, N não põe notas na projeção
+      if(!oradorAberta()) alternar("#notas");
+      ev.preventDefault(); break;
+    case "t": case "T": alternar("#crono"); ev.preventDefault(); break;
+    case "g": case "G": alternar("#grelha"); ev.preventDefault(); break;
+    case "v": case "V": reporVideo(); ev.preventDefault(); break;
+  }
+});
+
+/* roda do rato · bloqueio de 700 ms (o detalhe mais importante do 4.2) */
+var trancaRoda = 0;
+window.addEventListener("wheel", function(ev){
+  var agora = Date.now();
+  if(agora - trancaRoda < 700) return;
+  if(Math.abs(ev.deltaY) < 4 && Math.abs(ev.deltaX) < 4) return;
+  trancaRoda = agora;
+  (ev.deltaY > 0 || ev.deltaX > 0) ? avancar() : recuar();
+}, {passive:true});
+
+/* toque com deslize vertical, com a mesma tranca */
+var toqueY = null;
+window.addEventListener("touchstart", function(ev){ toqueY = ev.touches[0].clientY; }, {passive:true});
+window.addEventListener("touchend", function(ev){
+  if(toqueY === null) return;
+  var dy = toqueY - ev.changedTouches[0].clientY;
+  var agora = Date.now();
+  if(Math.abs(dy) > 40 && agora - trancaRoda >= 700){
+    trancaRoda = agora;
+    dy > 0 ? avancar() : recuar();
+  }
+  toqueY = null;
+}, {passive:true});
+
+/* o cursor só aparece quando o rato mexe */
+var escondeRato;
+window.addEventListener("mousemove", function(){
+  document.body.classList.add("rato");
+  clearTimeout(escondeRato);
+  escondeRato = setTimeout(function(){ document.body.classList.remove("rato"); }, 2500);
+});
+
+/* ---------- arranque --------------------------------------------------- */
+mostrar(0,0);
+
+/* a barra de ajuda retira-se sozinha ao fim de 8 s */
+setTimeout(function(){
+  var a = document.querySelector("#ajuda");
+  if(a){ a.style.transition = "opacity .8s ease"; a.style.opacity = "0"; }
+}, 8000);
+</script>
+</body>
+</html>
