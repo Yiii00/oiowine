@@ -1715,6 +1715,31 @@ document.addEventListener("DOMContentLoaded", function(){
     if(reduce){
       document.querySelectorAll(".prob-video video").forEach(function(v){ v.removeAttribute("autoplay"); v.pause && v.pause(); });
     }
+
+    /* Um video fora do ecra continua a descodificar: aquece o portatil e gasta
+       bateria sem nada para mostrar. O video da seccao do problema tem loop e
+       nunca parava. Pausamos o que sai de vista e retomamos quando volta.
+       O reel tem controlos, e do utilizador, e nao se toca. */
+    if("IntersectionObserver" in window){
+      var deveTocar = function(v){
+        return v.hasAttribute("autoplay") || v.id === "heroVideo";
+      };
+      // 30% e nao 1%: um video reduzido a uma nesga atras do cabecalho nao
+      // compensa o que custa a descodificar, sobretudo em graficos integrados.
+      var ioVid = new IntersectionObserver(function(entradas){
+        entradas.forEach(function(en){
+          var v = en.target;
+          if(en.intersectionRatio >= 0.3){
+            if(deveTocar(v) && v.paused){
+              var pr = v.play(); if(pr && pr.catch){ pr.catch(function(){}); }
+            }
+          } else if(!v.paused){
+            v.pause();
+          }
+        });
+      }, {threshold: [0, 0.3, 0.6]});
+      document.querySelectorAll("video:not([controls])").forEach(function(v){ ioVid.observe(v); });
+    }
   }catch(e){}
 })();
 </script>
