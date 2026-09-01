@@ -123,7 +123,7 @@ body.rato{cursor:default}
 /* Elemento que entra logo atrás do anterior, dentro do mesmo passo e sem
    gastar tecla. O atraso vive no estado .visivel para só valer à entrada:
    a recuar, sai de imediato. */
-.acompanha.visivel{transition-delay:.5s}
+.acompanha.visivel{transition-delay:var(--atraso,.5s)}
 .autor{font-family:"Inter",sans-serif;font-size:.8rem;opacity:.6;margin-top:.45rem}
 
 /* ---------- revelacao por passos ------------------------------------
@@ -667,14 +667,17 @@ body.rato{cursor:default}
 </section>
 
 <!-- ECRÃ 13 · O resultado central ================================= -->
-<section class="ecra bg-azul" data-passos="3">
+<section class="ecra bg-azul" data-passos="1">
   <div class="numero largo" data-passo="1">30,3%</div>
   <div class="duas-palavras">
-    <div class="col" data-passo="2"><span class="lbl">Conhecimento</span></div>
-    <div class="col" data-passo="2"><span class="lbl">Preço justo</span>
-      <span class="seta-cima" data-passo="3" aria-label="coeficiente positivo">&uarr;</span></div>
+    <div class="col acompanha" data-passo="1" style="--atraso:.55s">
+      <span class="lbl">Conhecimento</span></div>
+    <div class="col acompanha" data-passo="1" style="--atraso:.9s">
+      <span class="lbl">Preço justo</span>
+      <span class="seta-cima acompanha" data-passo="1" style="--atraso:1.35s"
+            aria-label="coeficiente positivo">&uarr;</span></div>
   </div>
-  <p class="rodape">regressão linear múltipla · n = 93 · relatório, ponto 4.4</p>
+  <p class="rodape acompanha" data-passo="1" style="--atraso:1.7s">regressão linear múltipla · n = 93 · relatório, ponto 4.4</p>
 </section>
 
 <!-- ECRÃ 14 · O que não se provou ================================= -->

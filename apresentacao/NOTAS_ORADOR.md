@@ -3,8 +3,9 @@
 **Ricardo Araújo, nº 2939790** · defesa do Projeto de licenciatura em Marketing
 ISCAP · P.Porto · orientação da Prof.ª Maria Antónia Rodrigues
 
-**Total previsto:** 10:05 · margem de 15 segundos sobre os 10 minutos de prova.
-**21 ecrãs, 37 passos.**
+**Total previsto:** 10:05. **21 ecrãs, 35 passos.**
+
+> Documento gerado. Para o actualizar: `node ferramentas/gerar_notas.js`.
 
 ---
 
@@ -59,7 +60,7 @@ var INCLUIR_CALENDARIO = false;
 ```
 
 O ecrã 18, o Calendário, desaparece e a numeração recalcula-se sozinha:
-passam a ser 20 ecrãs e 36 passos, com o total em 9:50.
+passam a ser 20 ecrãs e 34 passos, com o total em 9:50.
 É o único ecrã cuja ausência não parte nenhuma cadeia de argumento.
 Poupa 15 segundos, e a data de lançamento passa a ser dita de viva voz.
 
@@ -82,7 +83,7 @@ Poupa 15 segundos, e a data de lançamento passa a ser dita de viva voz.
 | 11 | A marca | 4:35 | 30 s | 2 | branco |
 | 12 | Sofia e Marta | 5:05 | 20 s | 2 | branco |
 | 13 | 93 | 5:25 | 35 s | 2 | oliva |
-| 14 | 30,3% | 6:00 | 50 s | 3 | azul |
+| 14 | 30,3% | 6:00 | 50 s | 1 | azul |
 | 15 | O que não se provou | 6:50 | 35 s | 4 | oliva |
 | 16 | 50.000 e 6.000 | 7:25 | 25 s | 2 | branco |
 | 17 | O protótipo | 7:50 | 30 s | 1 | preto |
@@ -90,10 +91,11 @@ Poupa 15 segundos, e a data de lançamento passa a ser dita de viva voz.
 | 19 | Os números e a auditoria | 8:35 | 40 s | 3 | branco |
 | 20 | Retenção | 9:15 | 40 s | 3 | vermelho |
 | 21 | Fecho | 9:55 | 10 s | 1 | azul |
-| | **total** | | **10:05** | **37** | |
+| | **total** | | **10:05** | **35** | |
 
-Nos ecrãs 2 e 3 o rodapé com a fonte entra sozinho, meio segundo depois do
-número. Não é preciso carregar em nada entre um e outro.
+Vários ecrãs têm um passo só e revelam tudo em cascata, sem tecla no meio:
+os rodapés de fonte, a revisão da literatura, o «Sem catálogo» e o resultado da
+regressão. A tabela acima diz quantas teclas cada ecrã pede.
 
 ---
 
@@ -208,7 +210,7 @@ Noventa e três respostas. Questionário online, tratado em SPSS. E vou já dize
 
 ### 14 · 30,3%
 
-`6:00` → `6:50` · 50 segundos · 3 passos · fundo azul
+`6:00` → `6:50` · 50 segundos · 1 passo · fundo azul
 
 Este é o resultado principal. Fiz uma regressão, que é uma conta que mede quanto é que umas coisas explicam outra. E duas coisas explicam trinta por cento da vontade de subscrever. A primeira é o quanto a pessoa acha que percebe de vinho. A segunda é o preço que ela considera justo. E aqui está a parte interessante: quanto mais alto o preço que a pessoa acha justo, mais provável é que subscreva. Trinta por cento pode não parecer muito, mas nestes estudos é um resultado forte. E mudou duas coisas no produto. O folheto deixou de ser um mimo e passou a ser a peça que trabalha aquilo que mais pesa na decisão. E o preço deixou de ser barato de propósito: no site, ele aparece dividido entre vinhos, aperitivo, curadoria e portes. O preço tem de ser explicado, não anunciado.
 
@@ -283,13 +285,13 @@ nenhuma decisão de composição:
 
 | Onde | Original | Usado | Contraste |
 |---|---|---|---|
-| Ecrã 3 · fundo | `#615C48` | `#3E3B2E` | n/a |
-| Ecrã 3 · número | `#BC642F` | `#CC6D33` | 3,10:1 |
-| Ecrãs 10, 15, 18 · oliva sobre branco | `#9F9772` | `#7B7454` | 4,70:1 |
-| Ecrãs 12, 14 · texto sobre oliva | `#615C48` | `#474334` | 3,37:1 |
-| Ecrã 12 · alerta sobre oliva | `#A13532` | `#7C2926` | 3,24:1 |
-| Ecrã 13 · seta sobre azul | `#BC642F` | `#D8814D` | 3,33:1 |
-| Ecrãs 6, 7 · rótulos pequenos a laranja | `#BC642F` | `#B05D2C` | 4,72:1 |
+| Ecrã do 25% · fundo | `#615C48` | `#3E3B2E` | n/a |
+| Ecrã do 25% · número | `#BC642F` | `#CC6D33` | 3,10:1 |
+| Oliva sobre branco | `#9F9772` | `#7B7454` | 4,70:1 |
+| Texto sobre fundo oliva | `#615C48` | `#474334` | 3,37:1 |
+| Alerta sobre fundo oliva | `#A13532` | `#7C2926` | 3,24:1 |
+| Seta sobre fundo azul | `#BC642F` | `#D8814D` | 3,33:1 |
+| Rótulos pequenos a laranja | `#BC642F` | `#B05D2C` | 4,72:1 |
 
 O laranja da norma do relatório, `#BC642F`, continua a ser o único laranja de
 display da apresentação e não é fundo de nenhuma secção inteira.
